@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aura Verse — Painel de Investimentos</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--av-purple:#7850ff;--av-teal:#00c8b4;--av-bg:#0c0b14;--av-card:#13111f;--av-card2:#1a1730;--av-border:#2a2545;--av-text:#e8e4ff;--av-muted:#7a7399}
+body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-serif;padding:32px;min-height:100vh}
+.dash{max-width:1100px;margin:0 auto}
+.title{font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:4px;color:var(--av-teal);text-transform:uppercase;margin-bottom:4px}
+.subtitle{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:700;color:var(--av-text);margin-bottom:8px}
+.divider{height:2px;background:linear-gradient(90deg,var(--av-purple),var(--av-teal),transparent);margin-bottom:28px;border-radius:2px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.metric-card{background:var(--av-card);border:1px solid var(--av-border);border-radius:10px;padding:18px 20px;position:relative;overflow:hidden}
+.metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.mc-purple::before{background:var(--av-purple)}
+.mc-teal::before{background:var(--av-teal)}
+.mc-amber::before{background:#f0a033}
+.mc-pink::before{background:#e060c0}
+.metric-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--av-muted);margin-bottom:8px}
+.metric-value{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:700;color:var(--av-text)}
+.metric-sub{font-size:12px;color:var(--av-muted);margin-top:4px}
+.charts-row{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:20px}
+.card{background:var(--av-card);border:1px solid var(--av-border);border-radius:10px;padding:20px}
+.card-title{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--av-muted);margin-bottom:18px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--av-muted)}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.table-section{background:var(--av-card);border:1px solid var(--av-border);border-radius:10px;padding:20px;margin-bottom:24px}
+.av-table{width:100%;border-collapse:collapse;font-size:13px}
+.av-table th{text-align:left;color:var(--av-muted);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:0 12px 12px;font-weight:500}
+.av-table td{padding:10px 12px;border-top:1px solid var(--av-border);color:var(--av-text);vertical-align:middle}
+.av-table tr:hover td{background:var(--av-card2)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:1px}
+.badge-pix{background:#1a2e1f;color:#4cd97b}
+.badge-card{background:#1f1a2e;color:#9c6ff5}
+.pago-x{color:#00c8b4;font-weight:600}
+.pago-m{color:#e060c0;font-weight:600}
+.val-cell{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--av-teal)}
+.bar-row{display:flex;flex-direction:column;gap:12px}
+.bar-item{display:flex;flex-direction:column;gap:5px}
+.bar-label{display:flex;justify-content:space-between;font-size:13px}
+.bar-name{color:var(--av-muted)}
+.bar-val{color:var(--av-text);font-weight:600}
+.bar-track{height:8px;background:var(--av-card2);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.obs-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;background:#1a1a2e;color:#7a7399;margin:2px 2px 0 0;border:1px solid var(--av-border)}
+.footer{text-align:center;font-size:11px;color:var(--av-muted);margin-top:32px;letter-spacing:2px;text-transform:uppercase}
+.loader{display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;gap:16px}
+.spinner{width:40px;height:40px;border:3px solid var(--av-border);border-top-color:var(--av-purple);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--av-muted)}
+.error-box{background:var(--av-card);border:1px solid #ff405040;border-radius:10px;padding:24px;text-align:center;color:#ff8080;font-size:14px}
+.refresh-btn{display:inline-flex;align-items:center;gap:8px;margin-top:8px;padding:6px 16px;border-radius:6px;border:1px solid var(--av-border);background:var(--av-card2);color:var(--av-teal);font-family:'Rajdhani',sans-serif;font-size:13px;cursor:pointer;letter-spacing:1px;transition:border-color .2s}
+.refresh-btn:hover{border-color:var(--av-teal)}
+.last-update{font-size:11px;color:var(--av-muted);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="dash">
+  <p class="title">Aura Verse — FiveM Server</p>
+  <p class="subtitle">Painel de Investimentos</p>
+  <div class="divider"></div>
+  <div id="root"><div class="loader"><div class="spinner"></div><p class="loader-text">Carregando planilha...</p></div></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const SHEET_ID = '14qY6cIm_ddfcdXUJ7UjK73V12NDR5LkdtqZDVyKHlZ4';
+const SHEET_NAME = 'INVESTIMENTO';
+let charts = [];
+
+async function loadData() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=2`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Erro ao buscar planilha');
+  const text = await res.text();
+  // Google retorna um callback wrapper, extrai o JSON puro
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  const rows = [];
+  for (const r of json.table.rows) {
+    const c = r.c;
+    const date = c[0]?.v ? formatDate(c[0].v) : null;
+    const desc = c[1]?.v || '';
+    const val = parseFloat((c[2]?.v ?? '').toString().replace(',','.'));
+    const pay = (c[3]?.v || '').toUpperCase();
+    const who = c[4]?.v || '';
+    const obs = c[6]?.v || '';
+    if (!date || !desc || isNaN(val) || val <= 0) continue;
+    rows.push({date, desc, val, pay, who, obs});
+  }
+  return rows;
+}
+
+function formatDate(v) {
+  // Google retorna datas como "Date(2025,11,5)" (mês base 0)
+  if (typeof v === 'string' && v.startsWith('Date(')) {
+    const parts = v.replace('Date(','').replace(')','').split(',').map(Number);
+    const d = new Date(parts[0], parts[1], parts[2]);
+    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  }
+  return v;
+}
+
+function clean(s) { return (s||'').replace(/^"|"$/g,'').trim(); }
+const fmt = v => 'R$ ' + v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+function render(raw) {
+  charts.forEach(c => c.destroy()); charts = [];
+
+  const total = raw.reduce((a,t)=>a+t.val,0);
+  const xiiga = raw.filter(t=>t.who==='Xiiga').reduce((a,t)=>a+t.val,0);
+  const moreno = raw.filter(t=>t.who==='Moreno').reduce((a,t)=>a+t.val,0);
+  const devTotal = raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0);
+  const now = new Date().toLocaleDateString('pt-BR');
+
+  document.getElementById('root').innerHTML = `
+    <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:20px">
+      <span class="last-update">Atualizado em ${now}</span>
+      <button class="refresh-btn" onclick="init()">↻ Atualizar</button>
+    </div>
+    <div class="metrics" id="metrics"></div>
+    <div class="charts-row">
+      <div class="card"><p class="card-title">Aportes ao longo do tempo</p><div style="position:relative;height:220px"><canvas id="lineChart"></canvas></div><div class="legend" id="line-legend"></div></div>
+      <div class="card"><p class="card-title">Distribuição por pagador</p><div style="position:relative;height:220px"><canvas id="doughnutChart"></canvas></div><div class="legend" id="donut-legend"></div></div>
+    </div>
+    <div class="bottom-row">
+      <div class="card"><p class="card-title">Investimento por categoria</p><div class="bar-row" id="cat-bars"></div></div>
+      <div class="card"><p class="card-title">Forma de pagamento</p><div style="position:relative;height:200px"><canvas id="payChart"></canvas></div></div>
+    </div>
+    <div class="table-section">
+      <p class="card-title">Histórico de transações</p>
+      <table class="av-table">
+        <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Forma</th><th>Pago por</th><th>Observações</th></tr></thead>
+        <tbody id="tx-body"></tbody>
+      </table>
+    </div>
+    <p class="footer">Aura Verse &nbsp;·&nbsp; ${raw.length} transações</p>
+  `;
+
+  document.getElementById('metrics').innerHTML=`
+    <div class="metric-card mc-purple"><p class="metric-label">Total Investido</p><p class="metric-value">${fmt(total)}</p><p class="metric-sub">${raw.length} transações</p></div>
+    <div class="metric-card mc-teal"><p class="metric-label">Xiiga</p><p class="metric-value">${fmt(xiiga)}</p><p class="metric-sub">${Math.round(xiiga/total*100)}% do total</p></div>
+    <div class="metric-card mc-pink"><p class="metric-label">Moreno</p><p class="metric-value">${fmt(moreno)}</p><p class="metric-sub">${Math.round(moreno/total*100)}% do total</p></div>
+    <div class="metric-card mc-amber"><p class="metric-label">Dev / Código</p><p class="metric-value">${fmt(devTotal)}</p><p class="metric-sub">${Math.round(devTotal/total*100)}% do total</p></div>
+  `;
+
+  const months={};
+  raw.forEach(t=>{
+    const p=t.date.split('/'); const k=p[1]+'/'+p[2];
+    months[k]=(months[k]||0)+t.val;
+  });
+  const monthKeys=Object.keys(months).sort((a,b)=>{
+    const [ma,ya]=a.split('/').map(Number);
+    const [mb,yb]=b.split('/').map(Number);
+    return ya!==yb?ya-yb:ma-mb;
+  });
+  let acc=0;
+  const monthAccum=monthKeys.map(k=>{acc+=months[k];return +acc.toFixed(2);});
+
+  charts.push(new Chart(document.getElementById('lineChart'),{
+    type:'line',
+    data:{labels:monthKeys,datasets:[
+      {label:'Acumulado',data:monthAccum,borderColor:'#7850ff',backgroundColor:'rgba(120,80,255,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#7850ff',pointRadius:5,pointHoverRadius:7},
+      {label:'Mensal',data:monthKeys.map(k=>months[k]),borderColor:'#00c8b4',backgroundColor:'rgba(0,200,180,0.05)',fill:false,tension:0.4,pointBackgroundColor:'#00c8b4',pointRadius:4,pointHoverRadius:6,borderDash:[4,4]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#7a7399',font:{size:11}},grid:{color:'rgba(42,37,69,0.5)'}},y:{ticks:{color:'#7a7399',font:{size:11},callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(42,37,69,0.5)'}}}}
+  }));
+  document.getElementById('line-legend').innerHTML=`<span class="leg-item"><span class="leg-dot" style="background:#7850ff"></span>Acumulado</span><span class="leg-item"><span class="leg-dot" style="background:#00c8b4;opacity:.6"></span>Mensal</span>`;
+
+  charts.push(new Chart(document.getElementById('doughnutChart'),{
+    type:'doughnut',
+    data:{labels:['Xiiga','Moreno'],datasets:[{data:[xiiga,moreno],backgroundColor:['#7850ff','#e060c0'],hoverBackgroundColor:['#9070ff','#e880d0'],borderColor:'#0c0b14',borderWidth:3}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>ctx.label+': '+fmt(ctx.parsed)}}}}
+  }));
+  document.getElementById('donut-legend').innerHTML=`<span class="leg-item"><span class="leg-dot" style="background:#7850ff"></span>Xiiga ${Math.round(xiiga/total*100)}%</span><span class="leg-item"><span class="leg-dot" style="background:#e060c0"></span>Moreno ${Math.round(moreno/total*100)}%</span>`;
+
+  const cats={
+    'Desenvolvimento':raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0),
+    'VPS / Infra':raw.filter(t=>t.desc.toLowerCase().includes('vps')||t.desc.toLowerCase().includes('ssd')).reduce((a,t)=>a+t.val,0),
+    'Assets / Plugins':raw.filter(t=>!t.desc.toLowerCase().includes('dev')&&!t.desc.toLowerCase().includes('vps')&&!t.desc.toLowerCase().includes('ssd')).reduce((a,t)=>a+t.val,0),
+  };
+  const catColors=['#7850ff','#00c8b4','#f0a033'];
+  const catMax=Math.max(...Object.values(cats));
+  document.getElementById('cat-bars').innerHTML=Object.entries(cats).map(([k,v],i)=>`
+    <div class="bar-item">
+      <div class="bar-label"><span class="bar-name">${k}</span><span class="bar-val">${fmt(v)}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/catMax*100)}%;background:${catColors[i]}"></div></div>
+    </div>`).join('');
+
+  const pixTotal=raw.filter(t=>t.pay==='PIX').reduce((a,t)=>a+t.val,0);
+  const cardTotal=raw.filter(t=>t.pay==='CARTÃO'||t.pay==='CARTAO').reduce((a,t)=>a+t.val,0);
+  charts.push(new Chart(document.getElementById('payChart'),{
+    type:'bar',
+    data:{labels:['PIX','Cartão'],datasets:[{data:[pixTotal,cardTotal],backgroundColor:['#00c8b4','#7850ff'],borderRadius:6,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>fmt(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#7a7399'},grid:{display:false}},y:{ticks:{color:'#7a7399',callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(42,37,69,0.5)'}}}}
+  }));
+
+  const tbody=document.getElementById('tx-body');
+  [...raw].reverse().forEach(t=>{
+    const obs=t.obs?t.obs.split(',').map(o=>`<span class="obs-tag">${o.trim()}</span>`).join(''):'—';
+    tbody.innerHTML+=`<tr>
+      <td style="color:var(--av-muted);font-size:12px;white-space:nowrap">${t.date}</td>
+      <td style="font-weight:500">${t.desc}</td>
+      <td class="val-cell">${fmt(t.val)}</td>
+      <td><span class="badge badge-${t.pay==='PIX'?'pix':'card'}">${t.pay}</span></td>
+      <td class="${t.who==='Xiiga'?'pago-x':'pago-m'}">${t.who}</td>
+      <td style="max-width:220px">${obs}</td>
+    </tr>`;
+  });
+}
+
+async function init() {
+  document.getElementById('root').innerHTML = '<div class="loader"><div class="spinner"></div><p class="loader-text">Carregando planilha...</p></div>';
+  try {
+    const data = await loadData();
+    if (!data.length) throw new Error('Nenhuma linha encontrada');
+    render(data);
+  } catch(e) {
+    document.getElementById('root').innerHTML = `
+      <div class="error-box">
+        <p>⚠️ Não foi possível carregar a planilha</p>
+        <p style="font-size:12px;margin-top:6px;color:#7a7399">${e.message}</p>
+        <button class="refresh-btn" onclick="init()">↻ Tentar novamente</button>
+      </div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>

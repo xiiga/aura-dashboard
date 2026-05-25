@@ -90,7 +90,7 @@ async function loadData() {
     const val = parseFloat((c[2]?.v ?? '').toString().replace(',','.'));
     const pay = (c[3]?.v || '').toUpperCase();
     const who = c[4]?.v || '';
-    const obs = c[5]?.v || c[6]?.v || '';
+    const obs = c[6]?.v || '';
     if (!date || !desc || isNaN(val) || val <= 0) continue;
     rows.push({date, desc, val, pay, who, obs});
   }

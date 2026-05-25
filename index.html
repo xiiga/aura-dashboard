@@ -68,58 +68,57 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
   <div class="divider"></div>
   <div id="root"><div class="loader"><div class="spinner"></div><p class="loader-text">Carregando planilha...</p></div></div>
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const SHEET_ID = '14qY6cIm_ddfcdXUJ7UjK73V12NDR5LkdtqZDVyKHlZ4';
-const SHEET_NAME = 'INVESTIMENTO';
-let charts = [];
+const SHEET_ID='14qY6cIm_ddfcdXUJ7UjK73V12NDR5LkdtqZDVyKHlZ4';
+const SHEET_NAME='INVESTIMENTO';
+let charts=[];
 
-async function loadData() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=2`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Erro ao buscar planilha');
-  const text = await res.text();
-  // Google retorna um callback wrapper, extrai o JSON puro
-  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-  const rows = [];
-  for (const r of json.table.rows) {
-    const c = r.c;
-    const date = c[0]?.v ? formatDate(c[0].v) : null;
-    const desc = c[1]?.v || '';
-    const val = parseFloat((c[2]?.v ?? '').toString().replace(',','.'));
-    const pay = (c[3]?.v || '').toUpperCase();
-    const who = c[4]?.v || '';
-    const obs = c[6]?.v ? String(c[6].v) : '';
-    if (!date || !desc || isNaN(val) || val <= 0) continue;
-    rows.push({date, desc, val, pay, who, obs});
+async function loadData(){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=2`;
+  const res=await fetch(url);
+  if(!res.ok) throw new Error('Erro ao buscar planilha');
+  const text=await res.text();
+  const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  const rows=[];
+  for(const r of json.table.rows){
+    const c=r.c;
+    if(!c||!c[0]) continue;
+    const date=c[0]?.v ? formatDate(c[0].v) : null;
+    const desc=String(c[1]?.v||'').trim();
+    const rawVal=c[2]?.v;
+    const val=parseFloat(String(rawVal||'0').replace(',','.'));
+    const pay=String(c[3]?.v||'').toUpperCase().trim();
+    const who=String(c[4]?.v||'').trim();
+    // c[5] = TOTAL (ignorado), c[6] = OBS
+    const obsRaw=c[6]?.v;
+    const obs=obsRaw!=null ? String(obsRaw).trim() : '';
+    if(!date||!desc||isNaN(val)||val<=0) continue;
+    rows.push({date,desc,val,pay,who,obs});
   }
   return rows;
 }
 
-function formatDate(v) {
-  // Google retorna datas como "Date(2025,11,5)" (mês base 0)
-  if (typeof v === 'string' && v.startsWith('Date(')) {
-    const parts = v.replace('Date(','').replace(')','').split(',').map(Number);
-    const d = new Date(parts[0], parts[1], parts[2]);
+function formatDate(v){
+  if(typeof v==='string'&&v.startsWith('Date(')){
+    const p=v.replace('Date(','').replace(')','').split(',').map(Number);
+    const d=new Date(p[0],p[1],p[2]);
     return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
   }
-  return v;
+  return String(v);
 }
 
-function clean(s) { return (s||'').replace(/^"|"$/g,'').trim(); }
-const fmt = v => 'R$ ' + v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 
-function render(raw) {
-  charts.forEach(c => c.destroy()); charts = [];
+function render(raw){
+  charts.forEach(c=>c.destroy()); charts=[];
+  const total=raw.reduce((a,t)=>a+t.val,0);
+  const xiiga=raw.filter(t=>t.who==='Xiiga').reduce((a,t)=>a+t.val,0);
+  const moreno=raw.filter(t=>t.who==='Moreno').reduce((a,t)=>a+t.val,0);
+  const devTotal=raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0);
+  const now=new Date().toLocaleDateString('pt-BR');
 
-  const total = raw.reduce((a,t)=>a+t.val,0);
-  const xiiga = raw.filter(t=>t.who==='Xiiga').reduce((a,t)=>a+t.val,0);
-  const moreno = raw.filter(t=>t.who==='Moreno').reduce((a,t)=>a+t.val,0);
-  const devTotal = raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0);
-  const now = new Date().toLocaleDateString('pt-BR');
-
-  document.getElementById('root').innerHTML = `
+  document.getElementById('root').innerHTML=`
     <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:20px">
       <span class="last-update">Atualizado em ${now}</span>
       <button class="refresh-btn" onclick="init()">↻ Atualizar</button>
@@ -152,7 +151,8 @@ function render(raw) {
 
   const months={};
   raw.forEach(t=>{
-    const p=t.date.split('/'); const k=p[1]+'/'+p[2];
+    const p=t.date.split('/');
+    const k=p[1]+'/'+p[2];
     months[k]=(months[k]||0)+t.val;
   });
   const monthKeys=Object.keys(months).sort((a,b)=>{
@@ -203,27 +203,27 @@ function render(raw) {
 
   const tbody=document.getElementById('tx-body');
   [...raw].reverse().forEach(t=>{
-    const obsStr = t.obs ? String(t.obs) : '';
-    const obs = obsStr ? obsStr.split(',').map(o=>`<span class="obs-tag">${o.trim()}</span>`).join('') : '—';
+    const obsStr=t.obs ? String(t.obs) : '';
+    const obsHtml=obsStr ? obsStr.split(',').map(o=>`<span class="obs-tag">${o.trim()}</span>`).join('') : '—';
     tbody.innerHTML+=`<tr>
       <td style="color:var(--av-muted);font-size:12px;white-space:nowrap">${t.date}</td>
       <td style="font-weight:500">${t.desc}</td>
       <td class="val-cell">${fmt(t.val)}</td>
       <td><span class="badge badge-${t.pay==='PIX'?'pix':'card'}">${t.pay}</span></td>
       <td class="${t.who==='Xiiga'?'pago-x':'pago-m'}">${t.who}</td>
-      <td style="max-width:220px">${obs}</td>
+      <td style="max-width:220px">${obsHtml}</td>
     </tr>`;
   });
 }
 
-async function init() {
-  document.getElementById('root').innerHTML = '<div class="loader"><div class="spinner"></div><p class="loader-text">Carregando planilha...</p></div>';
-  try {
-    const data = await loadData();
-    if (!data.length) throw new Error('Nenhuma linha encontrada');
+async function init(){
+  document.getElementById('root').innerHTML='<div class="loader"><div class="spinner"></div><p class="loader-text">Carregando planilha...</p></div>';
+  try{
+    const data=await loadData();
+    if(!data.length) throw new Error('Nenhuma linha encontrada');
     render(data);
-  } catch(e) {
-    document.getElementById('root').innerHTML = `
+  }catch(e){
+    document.getElementById('root').innerHTML=`
       <div class="error-box">
         <p>⚠️ Não foi possível carregar a planilha</p>
         <p style="font-size:12px;margin-top:6px;color:#7a7399">${e.message}</p>

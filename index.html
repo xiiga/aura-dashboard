@@ -203,7 +203,8 @@ function render(raw) {
 
   const tbody=document.getElementById('tx-body');
   [...raw].reverse().forEach(t=>{
-    const obs=t.obs?t.obs.split(',').map(o=>`<span class="obs-tag">${o.trim()}</span>`).join(''):'—';
+    const obsStr = t.obs ? String(t.obs) : '';
+    const obs = obsStr ? obsStr.split(',').map(o=>`<span class="obs-tag">${o.trim()}</span>`).join('') : '—';
     tbody.innerHTML+=`<tr>
       <td style="color:var(--av-muted);font-size:12px;white-space:nowrap">${t.date}</td>
       <td style="font-weight:500">${t.desc}</td>

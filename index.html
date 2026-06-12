@@ -62,6 +62,12 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
 .bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
 .obs-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;background:#1a1a2e;color:#7a7399;margin:2px 2px 0 0;border:1px solid var(--av-border)}
 .footer{text-align:center;font-size:11px;color:var(--av-muted);margin-top:32px;letter-spacing:2px;text-transform:uppercase}
+#loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:16px}
+.spinner{width:40px;height:40px;border:3px solid var(--av-border);border-top-color:var(--av-purple);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:3px;color:var(--av-muted);text-transform:uppercase}
+#error-msg{display:none;text-align:center;padding:40px;color:#ff6060;font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:2px}
+#content{display:none}
 </style>
 </head>
 <body>
@@ -70,172 +76,216 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
   <p class="subtitle">Painel de Investimentos</p>
   <div class="divider"></div>
 
-  <div class="metrics" id="metrics"></div>
-
-  <div class="charts-row">
-    <div class="card">
-      <p class="card-title">Aportes ao longo do tempo</p>
-      <div style="position:relative;height:220px"><canvas id="lineChart"></canvas></div>
-      <div class="legend" id="line-legend"></div>
-    </div>
-    <div class="card">
-      <p class="card-title">Distribuição por investidor</p>
-      <div style="position:relative;height:220px"><canvas id="doughnutChart"></canvas></div>
-      <div class="legend" id="donut-legend"></div>
-    </div>
+  <div id="loading">
+    <div class="spinner"></div>
+    <p class="loading-text">Carregando dados...</p>
   </div>
 
-  <div class="bottom-row">
-    <div class="card">
-      <p class="card-title">Investimento por categoria</p>
-      <div class="bar-row" id="cat-bars"></div>
-    </div>
-    <div class="card">
-      <p class="card-title">Forma de pagamento</p>
-      <div style="position:relative;height:200px"><canvas id="payChart"></canvas></div>
-    </div>
-  </div>
+  <div id="error-msg">Erro ao carregar dados da planilha.</div>
 
-  <div class="table-section">
-    <p class="card-title">Histórico de transações</p>
-    <table class="av-table">
-      <thead><tr>
-        <th>Data</th><th>Descrição</th><th>Valor</th><th>Forma</th><th>Pago por</th><th>Observações</th>
-      </tr></thead>
-      <tbody id="tx-body"></tbody>
-    </table>
-  </div>
+  <div id="content">
+    <div class="metrics" id="metrics"></div>
 
-  <p class="footer">Aura Verse &nbsp;·&nbsp; atualizado em 12/06/2026</p>
+    <div class="charts-row">
+      <div class="card">
+        <p class="card-title">Aportes ao longo do tempo</p>
+        <div style="position:relative;height:220px"><canvas id="lineChart"></canvas></div>
+        <div class="legend" id="line-legend"></div>
+      </div>
+      <div class="card">
+        <p class="card-title">Distribuição por investidor</p>
+        <div style="position:relative;height:220px"><canvas id="doughnutChart"></canvas></div>
+        <div class="legend" id="donut-legend"></div>
+      </div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="card">
+        <p class="card-title">Investimento por categoria</p>
+        <div class="bar-row" id="cat-bars"></div>
+      </div>
+      <div class="card">
+        <p class="card-title">Forma de pagamento</p>
+        <div style="position:relative;height:200px"><canvas id="payChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <p class="card-title">Histórico de transações</p>
+      <table class="av-table">
+        <thead><tr>
+          <th>Data</th><th>Descrição</th><th>Valor</th><th>Forma</th><th>Pago por</th><th>Observações</th>
+        </tr></thead>
+        <tbody id="tx-body"></tbody>
+      </table>
+    </div>
+
+    <p class="footer" id="footer-date">Aura Verse</p>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const raw=[
-  {date:'05/12/2025',desc:'Base fluxo',val:300,pay:'PIX',who:'Moreno',obs:''},
-  {date:'05/12/2025',desc:'Key Slot',val:272,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'05/12/2025',desc:'VPS',val:120,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'15/12/2025',desc:'White DEV',val:500,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'23/12/2025',desc:'White DEV',val:500,pay:'PIX',who:'Moreno',obs:''},
-  {date:'07/01/2026',desc:'VPS',val:153,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'15/01/2026',desc:'Kino',val:200,pay:'PIX',who:'Moreno',obs:''},
-  {date:'20/01/2026',desc:'White DEV',val:500,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'20/01/2026',desc:'Pack animações',val:100,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'24/01/2026',desc:'50GB VPS',val:20,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'25/01/2026',desc:'White DEV',val:500,pay:'PIX',who:'Moreno',obs:''},
-  {date:'06/02/2026',desc:'VPS',val:81,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'17/02/2026',desc:'Upgrade VPS',val:134.1,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'20/04/2026',desc:'James DEV',val:410,pay:'PIX',who:'Xiiga',obs:'royale, skins, spotify, HUD'},
-  {date:'23/04/2026',desc:'James DEV',val:400,pay:'PIX',who:'Moreno',obs:'emote, craft, roupas, carros logo'},
-  {date:'23/04/2026',desc:'VPS+Key+SSD',val:361,pay:'CARTÃO',who:'Xiiga',obs:''},
-  {date:'28/04/2026',desc:'James DEV',val:250,pay:'PIX',who:'Xiiga',obs:'farm afk, painel org, esc menu, voz, fxf, f1, telao, empregos'},
-  {date:'29/04/2026',desc:'James DEV',val:100,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'30/05/2026',desc:'James DEV',val:50,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'08/05/2026',desc:'James DEV',val:135,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'09/05/2026',desc:'James DEV',val:183,pay:'PIX',who:'Xiiga',obs:'KEY + Concessionária/Mecânica'},
-  {date:'13/05/2026',desc:'James DEV',val:540,pay:'PIX',who:'Moreno',obs:''},
-  {date:'14/05/2026',desc:'James DEV',val:200,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'15/05/2026',desc:'James DEV',val:200,pay:'PIX',who:'Xiiga',obs:''},
-  {date:'20/05/2026',desc:'James DEV',val:200,pay:'PIX',who:'Xiiga',obs:'Painel supremo + pier sul'},
-  {date:'23/05/2026',desc:'VPS Dedicada',val:900,pay:'CARTÃO',who:'Xiiga',obs:'VPS Wyze'},
-  {date:'23/05/2026',desc:'James DEV',val:80,pay:'PIX',who:'Moreno',obs:'posições táticas'},
-  {date:'25/05/2026',desc:'Acesso DC Noise',val:69.7,pay:'PIX',who:'Xiiga',obs:'Mapas, peds DC Kino...'},
-  {date:'26/05/2026',desc:'Dump lixo',val:45,pay:'PIX',who:'Xiiga',obs:'MIZZZZZZZZZZEEEEEEEEERAAA'},
-  {date:'28/05/2026',desc:'Guaxa Maps',val:180,pay:'PIX',who:'Xiiga',obs:'pack favelas soltas'},
-  {date:'28/05/2026',desc:'Guaxa Maps',val:200,pay:'PIX',who:'Xiiga',obs:'telão praça, + logo girando, pier norte ajustes + logo, + rua'},
-  {date:'01/06/2026',desc:'Guaxa Maps',val:250,pay:'PIX',who:'Xiiga',obs:'dp + bomb'},
-  {date:'06/06/2026',desc:'Fluxo BASE',val:100,pay:'PIX',who:'Xiiga',obs:'trocar discord da base'},
-  {date:'06/06/2026',desc:'Axe BOT',val:220,pay:'PIX',who:'Chucksz',obs:'AXE BOT DC'},
-  {date:'06/06/2026',desc:'Impulsos',val:45.5,pay:'PIX',who:'Chucksz',obs:'Impulsos pro discord'},
-  {date:'10/06/2026',desc:'KEY',val:250,pay:'PIX',who:'Chucksz',obs:'key fivem 2048'},
-  {date:'11/06/2026',desc:'Taco',val:70,pay:'PIX',who:'Chucksz',obs:'DUMP'},
-  {date:'12/06/2026',desc:'ID Visual',val:440,pay:'PIX',who:'Chucksz',obs:'FEZ A MENINA CHORAR'},
-  {date:'12/06/2026',desc:'Script Skate',val:90.93,pay:'PIX',who:'Chucksz',obs:'mecanica de skateboard'},
-];
+const SHEET_ID = '14qY6cIm_ddfcdXUJ7UjK73V12NDR5LkdtqZDVyKHlZ4';
+const SHEET_NAME = 'INVESTIMENTO';
+const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
-const fmt=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-const total=raw.reduce((a,t)=>a+t.val,0);
-const xiiga=raw.filter(t=>t.who==='Xiiga').reduce((a,t)=>a+t.val,0);
-const moreno=raw.filter(t=>t.who==='Moreno').reduce((a,t)=>a+t.val,0);
-const chucksz=raw.filter(t=>t.who==='Chucksz').reduce((a,t)=>a+t.val,0);
-const devTotal=raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0);
+const fmt = v => 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
 
-document.getElementById('metrics').innerHTML=`
-<div class="metric-card mc-purple"><p class="metric-label">Total Investido</p><p class="metric-value">${fmt(total)}</p><p class="metric-sub">${raw.length} transações</p></div>
-<div class="metric-card mc-teal"><p class="metric-label">Xiiga</p><p class="metric-value">${fmt(xiiga)}</p><p class="metric-sub">${Math.round(xiiga/total*100)}% do total</p></div>
-<div class="metric-card mc-pink"><p class="metric-label">Moreno</p><p class="metric-value">${fmt(moreno)}</p><p class="metric-sub">${Math.round(moreno/total*100)}% do total</p></div>
-<div class="metric-card mc-cyan"><p class="metric-label">Chucksz</p><p class="metric-value">${fmt(chucksz)}</p><p class="metric-sub">${Math.round(chucksz/total*100)}% do total</p></div>
-<div class="metric-card mc-amber"><p class="metric-label">Dev / Código</p><p class="metric-value">${fmt(devTotal)}</p><p class="metric-sub">${Math.round(devTotal/total*100)}% do total</p></div>
-`;
+function parseVal(v) {
+  if (!v) return 0;
+  const s = String(v).replace(/[^\d,\.]/g,'').replace(',','.');
+  return parseFloat(s) || 0;
+}
 
-// Linha do tempo — agrupa por mês/ano
-const months={};
-raw.forEach(t=>{
-  const parts=t.date.split('/');
-  const key=parts[1]+'/'+parts[2];
-  months[key]=(months[key]||0)+t.val;
-});
-const monthKeys=Object.keys(months);
-const monthAccum=[];let acc=0;
-monthKeys.forEach(k=>{acc+=months[k];monthAccum.push(+acc.toFixed(2));});
+async function loadData() {
+  try {
+    const res = await fetch(URL);
+    const text = await res.text();
+    // Google retorna google.visualization.Query.setResponse({...})
+    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+    const rows = json.table.rows;
 
-new Chart(document.getElementById('lineChart'),{
-  type:'line',
-  data:{labels:monthKeys,datasets:[
-    {label:'Acumulado',data:monthAccum,borderColor:'#7850ff',backgroundColor:'rgba(120,80,255,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#7850ff',pointRadius:5,pointHoverRadius:7},
-    {label:'Mensal',data:monthKeys.map(k=>months[k]),borderColor:'#00c8b4',backgroundColor:'rgba(0,200,180,0.05)',fill:false,tension:0.4,pointBackgroundColor:'#00c8b4',pointRadius:4,pointHoverRadius:6,borderDash:[4,4]}
-  ]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#7a7399',font:{size:11}},grid:{color:'rgba(42,37,69,0.5)'}},y:{ticks:{color:'#7a7399',font:{size:11},callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(42,37,69,0.5)'}}}}
-});
-document.getElementById('line-legend').innerHTML=`
-<span class="leg-item"><span class="leg-dot" style="background:#7850ff"></span>Acumulado</span>
-<span class="leg-item"><span class="leg-dot" style="background:#00c8b4;opacity:.6"></span>Mensal</span>`;
+    // Colunas: 0=Data, 1=Desc, 2=Valor, 3=Forma, 4=Pago por, 5=TOTAL(ignorar), 6=OBS
+    const raw = [];
+    for (const row of rows) {
+      const cells = row.c;
+      if (!cells || !cells[0] || !cells[0].v) continue;
+      const dateRaw = cells[0].v; // ex: "Date(2025,11,5)"
+      let dateStr = '';
+      if (typeof dateRaw === 'string' && dateRaw.startsWith('Date(')) {
+        const parts = dateRaw.replace('Date(','').replace(')','').split(',');
+        const y = parts[0];
+        const m = String(parseInt(parts[1])+1).padStart(2,'0');
+        const d = String(parts[2]).padStart(2,'0');
+        dateStr = `${d}/${m}/${y}`;
+      } else {
+        dateStr = String(dateRaw);
+      }
+      const desc = cells[1] ? String(cells[1].v || '').trim() : '';
+      const val  = parseVal(cells[2] ? cells[2].v : 0);
+      const pay  = cells[3] ? String(cells[3].v || 'PIX').trim().toUpperCase() : 'PIX';
+      const who  = cells[4] ? String(cells[4].v || '').trim() : '';
+      const obs  = cells[6] ? String(cells[6].v || '').trim() : '';
+      if (!desc || val === 0 || !who) continue;
+      raw.push({date:dateStr, desc, val, pay, who, obs});
+    }
 
-new Chart(document.getElementById('doughnutChart'),{
-  type:'doughnut',
-  data:{labels:['Xiiga','Moreno','Chucksz'],datasets:[{data:[xiiga,moreno,chucksz],backgroundColor:['#7850ff','#e060c0','#22d3f0'],hoverBackgroundColor:['#9070ff','#e880d0','#55e0f5'],borderColor:'#0c0b14',borderWidth:3}]},
-  options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>ctx.label+': '+fmt(ctx.parsed)}}}}
-});
-document.getElementById('donut-legend').innerHTML=`
-<span class="leg-item"><span class="leg-dot" style="background:#7850ff"></span>Xiiga ${Math.round(xiiga/total*100)}%</span>
-<span class="leg-item"><span class="leg-dot" style="background:#e060c0"></span>Moreno ${Math.round(moreno/total*100)}%</span>
-<span class="leg-item"><span class="leg-dot" style="background:#22d3f0"></span>Chucksz ${Math.round(chucksz/total*100)}%</span>`;
+    renderDashboard(raw);
+  } catch(e) {
+    console.error(e);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-msg').style.display = 'block';
+  }
+}
 
-const cats={
-  'Desenvolvimento':raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0),
-  'VPS / Infra':raw.filter(t=>/(vps|ssd|dedicada)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
-  'Mapas / Assets':raw.filter(t=>/(guaxa|kino|noise|dump|animaç|skate|id visual)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
-  'Key / Licenças':raw.filter(t=>/(key|key slot|fluxo base|axe bot|impulso)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
-};
-const catColors=['#7850ff','#00c8b4','#f0a033','#22d3f0'];
-const catMax=Math.max(...Object.values(cats));
-document.getElementById('cat-bars').innerHTML=Object.entries(cats).map(([k,v],i)=>`
-<div class="bar-item">
-  <div class="bar-label"><span class="bar-name">${k}</span><span class="bar-val">${fmt(v)}</span></div>
-  <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/catMax*100)}%;background:${catColors[i]}"></div></div>
-</div>`).join('');
+function renderDashboard(raw) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('content').style.display = 'block';
 
-const pixTotal=raw.filter(t=>t.pay==='PIX').reduce((a,t)=>a+t.val,0);
-const cardTotal=raw.filter(t=>t.pay==='CARTÃO').reduce((a,t)=>a+t.val,0);
-new Chart(document.getElementById('payChart'),{
-  type:'bar',
-  data:{labels:['PIX','Cartão'],datasets:[{data:[pixTotal,cardTotal],backgroundColor:['#00c8b4','#7850ff'],borderRadius:6,borderSkipped:false}]},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>fmt(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#7a7399'},grid:{display:false}},y:{ticks:{color:'#7a7399',callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(42,37,69,0.5)'}}}}
-});
+  const total   = raw.reduce((a,t)=>a+t.val,0);
+  const byWho   = {};
+  raw.forEach(t=>{ byWho[t.who] = (byWho[t.who]||0)+t.val; });
+  const devTotal = raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0);
 
-const colorMap={Xiiga:'pago-x',Moreno:'pago-m',Chucksz:'pago-c'};
-const tbody=document.getElementById('tx-body');
-[...raw].reverse().forEach(t=>{
-  const obs=t.obs?t.obs.split(',').map(o=>`<span class="obs-tag">${o.trim()}</span>`).join(''):'—';
-  tbody.innerHTML+=`<tr>
-    <td style="color:var(--av-muted);font-size:12px;white-space:nowrap">${t.date}</td>
-    <td style="font-weight:500">${t.desc}</td>
-    <td class="val-cell">${fmt(t.val)}</td>
-    <td><span class="badge badge-${t.pay==='PIX'?'pix':'card'}">${t.pay}</span></td>
-    <td class="${colorMap[t.who]||'pago-x'}">${t.who}</td>
-    <td style="max-width:220px">${obs}</td>
-  </tr>`;
-});
+  // Cores por investidor
+  const whoColors = {
+    'Xiiga':   {cls:'mc-teal',   hex:'#00c8b4', tdcls:'pago-x'},
+    'Moreno':  {cls:'mc-pink',   hex:'#e060c0', tdcls:'pago-m'},
+    'Chucksz': {cls:'mc-cyan',   hex:'#22d3f0', tdcls:'pago-c'},
+  };
+  const fallbackColors = ['#f0a033','#a070ff','#ff8060'];
+  let fi = 0;
+
+  // Métricas
+  let metricsHTML = `<div class="metric-card mc-purple"><p class="metric-label">Total Investido</p><p class="metric-value">${fmt(total)}</p><p class="metric-sub">${raw.length} transações</p></div>`;
+  Object.entries(byWho).forEach(([name, val]) => {
+    const c = whoColors[name] || {cls:'mc-amber', hex: fallbackColors[fi++]||'#f0a033', tdcls:'pago-x'};
+    metricsHTML += `<div class="metric-card ${c.cls}"><p class="metric-label">${name}</p><p class="metric-value">${fmt(val)}</p><p class="metric-sub">${Math.round(val/total*100)}% do total</p></div>`;
+  });
+  metricsHTML += `<div class="metric-card mc-amber"><p class="metric-label">Dev / Código</p><p class="metric-value">${fmt(devTotal)}</p><p class="metric-sub">${Math.round(devTotal/total*100)}% do total</p></div>`;
+  document.getElementById('metrics').innerHTML = metricsHTML;
+
+  // Linha do tempo
+  const months = {};
+  raw.forEach(t => {
+    const parts = t.date.split('/');
+    const key = parts[1]+'/'+parts[2];
+    months[key] = (months[key]||0) + t.val;
+  });
+  const monthKeys = Object.keys(months);
+  const monthAccum = []; let acc = 0;
+  monthKeys.forEach(k=>{ acc += months[k]; monthAccum.push(+acc.toFixed(2)); });
+
+  new Chart(document.getElementById('lineChart'), {
+    type:'line',
+    data:{labels:monthKeys, datasets:[
+      {label:'Acumulado', data:monthAccum, borderColor:'#7850ff', backgroundColor:'rgba(120,80,255,0.08)', fill:true, tension:0.4, pointBackgroundColor:'#7850ff', pointRadius:5, pointHoverRadius:7},
+      {label:'Mensal', data:monthKeys.map(k=>months[k]), borderColor:'#00c8b4', backgroundColor:'rgba(0,200,180,0.05)', fill:false, tension:0.4, pointBackgroundColor:'#00c8b4', pointRadius:4, pointHoverRadius:6, borderDash:[4,4]}
+    ]},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{backgroundColor:'#13111f', borderColor:'#2a2545', borderWidth:1, titleColor:'#e8e4ff', bodyColor:'#7a7399', callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}}, scales:{x:{ticks:{color:'#7a7399',font:{size:11}}, grid:{color:'rgba(42,37,69,0.5)'}}, y:{ticks:{color:'#7a7399',font:{size:11}, callback:v=>'R$'+Math.round(v/1000)+'k'}, grid:{color:'rgba(42,37,69,0.5)'}}}}
+  });
+  document.getElementById('line-legend').innerHTML = `
+    <span class="leg-item"><span class="leg-dot" style="background:#7850ff"></span>Acumulado</span>
+    <span class="leg-item"><span class="leg-dot" style="background:#00c8b4;opacity:.6"></span>Mensal</span>`;
+
+  // Rosca
+  const whoNames = Object.keys(byWho);
+  const whoVals  = whoNames.map(n=>byWho[n]);
+  const whoHexes = whoNames.map(n=>(whoColors[n]||{hex:'#f0a033'}).hex);
+  new Chart(document.getElementById('doughnutChart'), {
+    type:'doughnut',
+    data:{labels:whoNames, datasets:[{data:whoVals, backgroundColor:whoHexes, borderColor:'#0c0b14', borderWidth:3}]},
+    options:{responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{legend:{display:false}, tooltip:{backgroundColor:'#13111f', borderColor:'#2a2545', borderWidth:1, titleColor:'#e8e4ff', bodyColor:'#7a7399', callbacks:{label:ctx=>ctx.label+': '+fmt(ctx.parsed)}}}}
+  });
+  document.getElementById('donut-legend').innerHTML = whoNames.map(n=>`
+    <span class="leg-item"><span class="leg-dot" style="background:${(whoColors[n]||{hex:'#f0a033'}).hex}"></span>${n} ${Math.round(byWho[n]/total*100)}%</span>`).join('');
+
+  // Barras categoria
+  const cats = {
+    'Desenvolvimento': raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0),
+    'VPS / Infra':     raw.filter(t=>/(vps|ssd|dedicada)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
+    'Mapas / Assets':  raw.filter(t=>/(guaxa|kino|noise|dump|animaç|skate|id visual)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
+    'Key / Licenças':  raw.filter(t=>/(key|key slot|fluxo base|axe bot|impulso)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
+  };
+  const catColors = ['#7850ff','#00c8b4','#f0a033','#22d3f0'];
+  const catMax = Math.max(...Object.values(cats));
+  document.getElementById('cat-bars').innerHTML = Object.entries(cats).map(([k,v],i)=>`
+    <div class="bar-item">
+      <div class="bar-label"><span class="bar-name">${k}</span><span class="bar-val">${fmt(v)}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/catMax*100)}%;background:${catColors[i]}"></div></div>
+    </div>`).join('');
+
+  // Pagamento
+  const pixTotal  = raw.filter(t=>t.pay==='PIX').reduce((a,t)=>a+t.val,0);
+  const cardTotal = raw.filter(t=>t.pay==='CARTÃO'||t.pay==='CARTAO').reduce((a,t)=>a+t.val,0);
+  new Chart(document.getElementById('payChart'), {
+    type:'bar',
+    data:{labels:['PIX','Cartão'], datasets:[{data:[pixTotal,cardTotal], backgroundColor:['#00c8b4','#7850ff'], borderRadius:6, borderSkipped:false}]},
+    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{backgroundColor:'#13111f', borderColor:'#2a2545', borderWidth:1, titleColor:'#e8e4ff', bodyColor:'#7a7399', callbacks:{label:ctx=>fmt(ctx.parsed.y)}}}, scales:{x:{ticks:{color:'#7a7399'}, grid:{display:false}}, y:{ticks:{color:'#7a7399', callback:v=>'R$'+Math.round(v/1000)+'k'}, grid:{color:'rgba(42,37,69,0.5)'}}}}
+  });
+
+  // Tabela
+  const tbody = document.getElementById('tx-body');
+  [...raw].reverse().forEach(t => {
+    const obs = t.obs ? t.obs.split(',').map(o=>`<span class="obs-tag">${o.trim()}</span>`).join('') : '—';
+    const c = whoColors[t.who] || {tdcls:'pago-x'};
+    tbody.innerHTML += `<tr>
+      <td style="color:var(--av-muted);font-size:12px;white-space:nowrap">${t.date}</td>
+      <td style="font-weight:500">${t.desc}</td>
+      <td class="val-cell">${fmt(t.val)}</td>
+      <td><span class="badge badge-${(t.pay==='PIX')?'pix':'card'}">${t.pay}</span></td>
+      <td class="${c.tdcls}">${t.who}</td>
+      <td style="max-width:220px">${obs}</td>
+    </tr>`;
+  });
+
+  // Footer com data de hoje
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  document.getElementById('footer-date').textContent = `Aura Verse · atualizado em ${hoje}`;
+}
+
+loadData();
 </script>
 </body>
 </html>

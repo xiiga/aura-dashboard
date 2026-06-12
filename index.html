@@ -53,7 +53,7 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
 .spinner{width:40px;height:40px;border:3px solid var(--av-border);border-top-color:var(--av-purple);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:3px;color:var(--av-muted);text-transform:uppercase}
-#error-msg{display:none;text-align:center;padding:40px;color:#ff6060;font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:2px}
+#error-msg{display:none;text-align:center;padding:40px;color:#ff6060;font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:2px;line-height:2}
 #content{display:none}
 </style>
 </head>
@@ -63,7 +63,7 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
   <p class="subtitle">Painel de Investimentos</p>
   <div class="divider"></div>
   <div id="loading"><div class="spinner"></div><p class="loading-text">Carregando dados...</p></div>
-  <div id="error-msg">Erro ao carregar dados da planilha.<br><small style="font-size:10px;opacity:.6">Verifique se a planilha está pública (Qualquer pessoa com o link).</small></div>
+  <div id="error-msg"></div>
   <div id="content">
     <div class="metrics" id="metrics"></div>
     <div class="charts-row">
@@ -100,102 +100,99 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
-const SHEET_ID  = '14qY6cIm_ddfcdXUJ7UjK73V12NDR5LkdtqZDVyKHlZ4';
-const GID       = '0'; // gid da aba INVESTIMENTO
-
-// Callback chamado pelo JSONP do Google
-window.onGVizData = function(data) {
-  try {
-    const rows = data.table.rows;
-    const raw  = [];
-
-    for (const row of rows) {
-      const c = row.c;
-      if (!c || !c[0] || c[0].v == null) continue;
-
-      // Data — Google retorna objeto Date ou string "Date(y,m,d)"
-      let dateStr = '';
-      const dv = c[0].v;
-      if (typeof dv === 'string' && dv.startsWith('Date(')) {
-        const p = dv.replace('Date(','').replace(')','').split(',');
-        dateStr = `${String(p[2]).padStart(2,'0')}/${String(parseInt(p[1])+1).padStart(2,'0')}/${p[0]}`;
-      } else if (c[0].f) {
-        // formato localizado retornado pelo Google (ex: "05/12/2025")
-        dateStr = c[0].f;
-      } else {
-        dateStr = String(dv);
-      }
-
-      const desc = c[1] ? String(c[1].v||'').trim() : '';
-      let   val  = 0;
-      if (c[2]) {
-        if (typeof c[2].v === 'number') val = c[2].v;
-        else val = parseFloat(String(c[2].v||'').replace(',','.')) || 0;
-      }
-      const pay  = c[3] ? String(c[3].v||'PIX').trim().toUpperCase() : 'PIX';
-      const who  = c[4] ? String(c[4].v||'').trim() : '';
-      const obs  = c[6] ? String(c[6].v||'').trim() : '';
-
-      if (!desc || val === 0 || !who) continue;
-      raw.push({ date:dateStr, desc, val, pay, who, obs });
-    }
-
-    renderDashboard(raw);
-  } catch(e) {
-    console.error('Erro ao processar dados:', e);
-    showError();
-  }
-};
-
-function showError() {
-  document.getElementById('loading').style.display  = 'none';
-  document.getElementById('error-msg').style.display = 'block';
-}
-
-// Injeta script JSONP — contorna CORS
-function loadData() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;handler:onGVizData&gid=${GID}`;
-  const s = document.createElement('script');
-  s.src = url;
-  s.onerror = showError;
-  document.head.appendChild(s);
-  // Timeout de segurança
-  setTimeout(()=>{ if(document.getElementById('loading').style.display!=='none') showError(); }, 8000);
-}
+const SHEET_ID = '14qY6cIm_ddfcdXUJ7UjK73V12NDR5LkdtqZDVyKHlZ4';
+const GID      = '0';
+// URL de exportação CSV pública — funciona sem autenticação
+const CSV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 
 const fmt = v => 'R$ ' + v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+function parseVal(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  return parseFloat(String(v).replace(/[^\d,\.]/g,'').replace(',','.')) || 0;
+}
+
+function showError(msg) {
+  document.getElementById('loading').style.display   = 'none';
+  const el = document.getElementById('error-msg');
+  el.innerHTML = msg;
+  el.style.display = 'block';
+}
+
+async function loadData() {
+  try {
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+
+    Papa.parse(text, {
+      skipEmptyLines: true,
+      complete: function(results) {
+        const rows = results.data;
+        const raw  = [];
+
+        // Pula as 2 primeiras linhas (título "INVESTIMENTO AURA VERSE" e cabeçalho)
+        for (let i = 2; i < rows.length; i++) {
+          const r    = rows[i];
+          const date = (r[0]||'').trim();
+          const desc = (r[1]||'').trim();
+          const val  = parseVal(r[2]);
+          const pay  = (r[3]||'PIX').trim().toUpperCase();
+          const who  = (r[4]||'').trim();
+          const obs  = (r[6]||'').trim();
+
+          if (!date || !desc || val === 0 || !who) continue;
+          raw.push({ date, desc, val, pay, who, obs });
+        }
+
+        if (raw.length === 0) {
+          showError('Nenhum dado encontrado na planilha.');
+          return;
+        }
+        renderDashboard(raw);
+      },
+      error: function(err) {
+        showError('Erro ao interpretar CSV: ' + err.message);
+      }
+    });
+  } catch(e) {
+    showError(`Erro ao carregar dados da planilha.<br><small style="font-size:10px;opacity:.6">${e.message}</small>`);
+  }
+}
 
 const whoColors = {
   'Xiiga':   {cls:'mc-teal', hex:'#00c8b4', tdcls:'pago-x'},
   'Moreno':  {cls:'mc-pink', hex:'#e060c0', tdcls:'pago-m'},
   'Chucksz': {cls:'mc-cyan', hex:'#22d3f0', tdcls:'pago-c'},
 };
-const fallback = ['#f0a033','#a070ff','#ff8060'];
+const fallback = [{cls:'mc-amber',hex:'#f0a033',tdcls:'pago-x'},{cls:'mc-purple',hex:'#a070ff',tdcls:'pago-x'}];
 
 function renderDashboard(raw) {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('content').style.display = 'block';
 
-  const total  = raw.reduce((a,t)=>a+t.val, 0);
-  const byWho  = {};
+  const total    = raw.reduce((a,t)=>a+t.val, 0);
+  const byWho    = {};
   raw.forEach(t=>{ byWho[t.who]=(byWho[t.who]||0)+t.val; });
   const devTotal = raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0);
 
-  // --- Métricas ---
-  let fi = 0;
-  let mh = `<div class="metric-card mc-purple"><p class="metric-label">Total Investido</p><p class="metric-value">${fmt(total)}</p><p class="metric-sub">${raw.length} transações</p></div>`;
+  // Métricas
+  let fi=0;
+  let mh=`<div class="metric-card mc-purple"><p class="metric-label">Total Investido</p><p class="metric-value">${fmt(total)}</p><p class="metric-sub">${raw.length} transações</p></div>`;
   Object.entries(byWho).forEach(([name,val])=>{
-    const c = whoColors[name]||{cls:'mc-amber',hex:fallback[fi++]||'#f0a033',tdcls:'pago-x'};
-    mh += `<div class="metric-card ${c.cls}"><p class="metric-label">${name}</p><p class="metric-value">${fmt(val)}</p><p class="metric-sub">${Math.round(val/total*100)}% do total</p></div>`;
+    const c=whoColors[name]||(fallback[fi++]||fallback[0]);
+    mh+=`<div class="metric-card ${c.cls}"><p class="metric-label">${name}</p><p class="metric-value">${fmt(val)}</p><p class="metric-sub">${Math.round(val/total*100)}% do total</p></div>`;
   });
-  mh += `<div class="metric-card mc-amber"><p class="metric-label">Dev / Código</p><p class="metric-value">${fmt(devTotal)}</p><p class="metric-sub">${Math.round(devTotal/total*100)}% do total</p></div>`;
-  document.getElementById('metrics').innerHTML = mh;
+  mh+=`<div class="metric-card mc-amber"><p class="metric-label">Dev / Código</p><p class="metric-value">${fmt(devTotal)}</p><p class="metric-sub">${Math.round(devTotal/total*100)}% do total</p></div>`;
+  document.getElementById('metrics').innerHTML=mh;
 
-  // --- Linha do tempo ---
+  // Linha do tempo
   const months={};
   raw.forEach(t=>{
     const p=t.date.split('/');
+    if(p.length<3) return;
     const k=p[1]+'/'+p[2];
     months[k]=(months[k]||0)+t.val;
   });
@@ -213,10 +210,8 @@ function renderDashboard(raw) {
   });
   document.getElementById('line-legend').innerHTML=`<span class="leg-item"><span class="leg-dot" style="background:#7850ff"></span>Acumulado</span><span class="leg-item"><span class="leg-dot" style="background:#00c8b4;opacity:.6"></span>Mensal</span>`;
 
-  // --- Rosca ---
-  const wn=Object.keys(byWho);
-  const wv=wn.map(n=>byWho[n]);
-  const wh=wn.map(n=>(whoColors[n]||{hex:'#f0a033'}).hex);
+  // Rosca
+  const wn=Object.keys(byWho),wv=wn.map(n=>byWho[n]),wh=wn.map(n=>(whoColors[n]||{hex:'#f0a033'}).hex);
   new Chart(document.getElementById('doughnutChart'),{
     type:'doughnut',
     data:{labels:wn,datasets:[{data:wv,backgroundColor:wh,borderColor:'#0c0b14',borderWidth:3}]},
@@ -224,12 +219,12 @@ function renderDashboard(raw) {
   });
   document.getElementById('donut-legend').innerHTML=wn.map(n=>`<span class="leg-item"><span class="leg-dot" style="background:${(whoColors[n]||{hex:'#f0a033'}).hex}"></span>${n} ${Math.round(byWho[n]/total*100)}%</span>`).join('');
 
-  // --- Barras categoria ---
+  // Barras categoria
   const cats={
     'Desenvolvimento':raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0),
     'VPS / Infra':raw.filter(t=>/(vps|ssd|dedicada)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
     'Mapas / Assets':raw.filter(t=>/(guaxa|kino|noise|dump|animaç|skate|id visual)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
-    'Key / Licenças':raw.filter(t=>/(key|key slot|fluxo base|axe bot|impulso|taco)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
+    'Key / Licenças':raw.filter(t=>/(^key$|key slot|fluxo base|axe bot|impulso|taco)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
   };
   const cc=['#7850ff','#00c8b4','#f0a033','#22d3f0'];
   const cm=Math.max(...Object.values(cats));
@@ -239,7 +234,7 @@ function renderDashboard(raw) {
       <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/cm*100)}%;background:${cc[i]}"></div></div>
     </div>`).join('');
 
-  // --- Pagamento ---
+  // Pagamento
   const px=raw.filter(t=>t.pay==='PIX').reduce((a,t)=>a+t.val,0);
   const cd=raw.filter(t=>t.pay==='CARTÃO'||t.pay==='CARTAO').reduce((a,t)=>a+t.val,0);
   new Chart(document.getElementById('payChart'),{
@@ -248,17 +243,16 @@ function renderDashboard(raw) {
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>fmt(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#7a7399'},grid:{display:false}},y:{ticks:{color:'#7a7399',callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(42,37,69,0.5)'}}}}
   });
 
-  // --- Tabela ---
+  // Tabela
   const tbody=document.getElementById('tx-body');
   [...raw].reverse().forEach(t=>{
     const obs=t.obs?t.obs.split(',').map(o=>`<span class="obs-tag">${o.trim()}</span>`).join(''):'—';
     const c=whoColors[t.who]||{tdcls:'pago-x'};
-    const payKey=(t.pay==='PIX')?'pix':'card';
     tbody.innerHTML+=`<tr>
       <td style="color:var(--av-muted);font-size:12px;white-space:nowrap">${t.date}</td>
       <td style="font-weight:500">${t.desc}</td>
       <td class="val-cell">${fmt(t.val)}</td>
-      <td><span class="badge badge-${payKey}">${t.pay}</span></td>
+      <td><span class="badge badge-${t.pay==='PIX'?'pix':'card'}">${t.pay}</span></td>
       <td class="${c.tdcls}">${t.who}</td>
       <td style="max-width:220px">${obs}</td>
     </tr>`;

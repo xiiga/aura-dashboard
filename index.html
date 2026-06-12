@@ -9,14 +9,8 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --av-purple:#7850ff;
-  --av-teal:#00c8b4;
-  --av-bg:#0c0b14;
-  --av-card:#13111f;
-  --av-card2:#1a1730;
-  --av-border:#2a2545;
-  --av-text:#e8e4ff;
-  --av-muted:#7a7399;
+  --av-purple:#7850ff;--av-teal:#00c8b4;--av-bg:#0c0b14;--av-card:#13111f;
+  --av-card2:#1a1730;--av-border:#2a2545;--av-text:#e8e4ff;--av-muted:#7a7399;
 }
 body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-serif;padding:32px;min-height:100vh}
 .dash{max-width:1140px;margin:0 auto}
@@ -26,11 +20,8 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
 .metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
 .metric-card{background:var(--av-card);border:1px solid var(--av-border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden}
 .metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-.mc-purple::before{background:var(--av-purple)}
-.mc-teal::before{background:var(--av-teal)}
-.mc-amber::before{background:#f0a033}
-.mc-pink::before{background:#e060c0}
-.mc-cyan::before{background:#22d3f0}
+.mc-purple::before{background:var(--av-purple)}.mc-teal::before{background:var(--av-teal)}
+.mc-amber::before{background:#f0a033}.mc-pink::before{background:#e060c0}.mc-cyan::before{background:#22d3f0}
 .metric-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--av-muted);margin-bottom:8px}
 .metric-value{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:var(--av-text)}
 .metric-sub{font-size:12px;color:var(--av-muted);margin-top:4px}
@@ -46,17 +37,13 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
 .av-table td{padding:10px 12px;border-top:1px solid var(--av-border);color:var(--av-text);vertical-align:middle}
 .av-table tr:hover td{background:var(--av-card2)}
 .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:1px}
-.badge-pix{background:#1a2e1f;color:#4cd97b}
-.badge-card{background:#1f1a2e;color:#9c6ff5}
-.pago-x{color:#00c8b4;font-weight:600}
-.pago-m{color:#e060c0;font-weight:600}
-.pago-c{color:#22d3f0;font-weight:600}
+.badge-pix{background:#1a2e1f;color:#4cd97b}.badge-card{background:#1f1a2e;color:#9c6ff5}
+.pago-x{color:#00c8b4;font-weight:600}.pago-m{color:#e060c0;font-weight:600}.pago-c{color:#22d3f0;font-weight:600}
 .val-cell{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--av-teal)}
 .bar-row{display:flex;flex-direction:column;gap:12px}
 .bar-item{display:flex;flex-direction:column;gap:5px}
 .bar-label{display:flex;justify-content:space-between;font-size:13px}
-.bar-name{color:var(--av-muted)}
-.bar-val{color:var(--av-text);font-weight:600}
+.bar-name{color:var(--av-muted)}.bar-val{color:var(--av-text);font-weight:600}
 .bar-track{height:8px;background:var(--av-card2);border-radius:4px;overflow:hidden}
 .bar-fill{height:100%;border-radius:4px}
 .bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
@@ -75,17 +62,10 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
   <p class="title">Aura Verse — FiveM Server</p>
   <p class="subtitle">Painel de Investimentos</p>
   <div class="divider"></div>
-
-  <div id="loading">
-    <div class="spinner"></div>
-    <p class="loading-text">Carregando dados...</p>
-  </div>
-
-  <div id="error-msg">Erro ao carregar dados da planilha.</div>
-
+  <div id="loading"><div class="spinner"></div><p class="loading-text">Carregando dados...</p></div>
+  <div id="error-msg">Erro ao carregar dados da planilha.<br><small style="font-size:10px;opacity:.6">Verifique se a planilha está pública (Qualquer pessoa com o link).</small></div>
   <div id="content">
     <div class="metrics" id="metrics"></div>
-
     <div class="charts-row">
       <div class="card">
         <p class="card-title">Aportes ao longo do tempo</p>
@@ -98,7 +78,6 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
         <div class="legend" id="donut-legend"></div>
       </div>
     </div>
-
     <div class="bottom-row">
       <div class="card">
         <p class="card-title">Investimento por categoria</p>
@@ -109,180 +88,183 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
         <div style="position:relative;height:200px"><canvas id="payChart"></canvas></div>
       </div>
     </div>
-
     <div class="table-section">
       <p class="card-title">Histórico de transações</p>
       <table class="av-table">
-        <thead><tr>
-          <th>Data</th><th>Descrição</th><th>Valor</th><th>Forma</th><th>Pago por</th><th>Observações</th>
-        </tr></thead>
+        <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Forma</th><th>Pago por</th><th>Observações</th></tr></thead>
         <tbody id="tx-body"></tbody>
       </table>
     </div>
-
     <p class="footer" id="footer-date">Aura Verse</p>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const SHEET_ID = '14qY6cIm_ddfcdXUJ7UjK73V12NDR5LkdtqZDVyKHlZ4';
-const SHEET_NAME = 'INVESTIMENTO';
-const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+const SHEET_ID  = '14qY6cIm_ddfcdXUJ7UjK73V12NDR5LkdtqZDVyKHlZ4';
+const GID       = '0'; // gid da aba INVESTIMENTO
 
-const fmt = v => 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-
-function parseVal(v) {
-  if (!v) return 0;
-  const s = String(v).replace(/[^\d,\.]/g,'').replace(',','.');
-  return parseFloat(s) || 0;
-}
-
-async function loadData() {
+// Callback chamado pelo JSONP do Google
+window.onGVizData = function(data) {
   try {
-    const res = await fetch(URL);
-    const text = await res.text();
-    // Google retorna google.visualization.Query.setResponse({...})
-    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-    const rows = json.table.rows;
+    const rows = data.table.rows;
+    const raw  = [];
 
-    // Colunas: 0=Data, 1=Desc, 2=Valor, 3=Forma, 4=Pago por, 5=TOTAL(ignorar), 6=OBS
-    const raw = [];
     for (const row of rows) {
-      const cells = row.c;
-      if (!cells || !cells[0] || !cells[0].v) continue;
-      const dateRaw = cells[0].v; // ex: "Date(2025,11,5)"
+      const c = row.c;
+      if (!c || !c[0] || c[0].v == null) continue;
+
+      // Data — Google retorna objeto Date ou string "Date(y,m,d)"
       let dateStr = '';
-      if (typeof dateRaw === 'string' && dateRaw.startsWith('Date(')) {
-        const parts = dateRaw.replace('Date(','').replace(')','').split(',');
-        const y = parts[0];
-        const m = String(parseInt(parts[1])+1).padStart(2,'0');
-        const d = String(parts[2]).padStart(2,'0');
-        dateStr = `${d}/${m}/${y}`;
+      const dv = c[0].v;
+      if (typeof dv === 'string' && dv.startsWith('Date(')) {
+        const p = dv.replace('Date(','').replace(')','').split(',');
+        dateStr = `${String(p[2]).padStart(2,'0')}/${String(parseInt(p[1])+1).padStart(2,'0')}/${p[0]}`;
+      } else if (c[0].f) {
+        // formato localizado retornado pelo Google (ex: "05/12/2025")
+        dateStr = c[0].f;
       } else {
-        dateStr = String(dateRaw);
+        dateStr = String(dv);
       }
-      const desc = cells[1] ? String(cells[1].v || '').trim() : '';
-      const val  = parseVal(cells[2] ? cells[2].v : 0);
-      const pay  = cells[3] ? String(cells[3].v || 'PIX').trim().toUpperCase() : 'PIX';
-      const who  = cells[4] ? String(cells[4].v || '').trim() : '';
-      const obs  = cells[6] ? String(cells[6].v || '').trim() : '';
+
+      const desc = c[1] ? String(c[1].v||'').trim() : '';
+      let   val  = 0;
+      if (c[2]) {
+        if (typeof c[2].v === 'number') val = c[2].v;
+        else val = parseFloat(String(c[2].v||'').replace(',','.')) || 0;
+      }
+      const pay  = c[3] ? String(c[3].v||'PIX').trim().toUpperCase() : 'PIX';
+      const who  = c[4] ? String(c[4].v||'').trim() : '';
+      const obs  = c[6] ? String(c[6].v||'').trim() : '';
+
       if (!desc || val === 0 || !who) continue;
-      raw.push({date:dateStr, desc, val, pay, who, obs});
+      raw.push({ date:dateStr, desc, val, pay, who, obs });
     }
 
     renderDashboard(raw);
   } catch(e) {
-    console.error(e);
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('error-msg').style.display = 'block';
+    console.error('Erro ao processar dados:', e);
+    showError();
   }
+};
+
+function showError() {
+  document.getElementById('loading').style.display  = 'none';
+  document.getElementById('error-msg').style.display = 'block';
 }
+
+// Injeta script JSONP — contorna CORS
+function loadData() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;handler:onGVizData&gid=${GID}`;
+  const s = document.createElement('script');
+  s.src = url;
+  s.onerror = showError;
+  document.head.appendChild(s);
+  // Timeout de segurança
+  setTimeout(()=>{ if(document.getElementById('loading').style.display!=='none') showError(); }, 8000);
+}
+
+const fmt = v => 'R$ ' + v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+const whoColors = {
+  'Xiiga':   {cls:'mc-teal', hex:'#00c8b4', tdcls:'pago-x'},
+  'Moreno':  {cls:'mc-pink', hex:'#e060c0', tdcls:'pago-m'},
+  'Chucksz': {cls:'mc-cyan', hex:'#22d3f0', tdcls:'pago-c'},
+};
+const fallback = ['#f0a033','#a070ff','#ff8060'];
 
 function renderDashboard(raw) {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('content').style.display = 'block';
 
-  const total   = raw.reduce((a,t)=>a+t.val,0);
-  const byWho   = {};
-  raw.forEach(t=>{ byWho[t.who] = (byWho[t.who]||0)+t.val; });
+  const total  = raw.reduce((a,t)=>a+t.val, 0);
+  const byWho  = {};
+  raw.forEach(t=>{ byWho[t.who]=(byWho[t.who]||0)+t.val; });
   const devTotal = raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0);
 
-  // Cores por investidor
-  const whoColors = {
-    'Xiiga':   {cls:'mc-teal',   hex:'#00c8b4', tdcls:'pago-x'},
-    'Moreno':  {cls:'mc-pink',   hex:'#e060c0', tdcls:'pago-m'},
-    'Chucksz': {cls:'mc-cyan',   hex:'#22d3f0', tdcls:'pago-c'},
-  };
-  const fallbackColors = ['#f0a033','#a070ff','#ff8060'];
+  // --- Métricas ---
   let fi = 0;
-
-  // Métricas
-  let metricsHTML = `<div class="metric-card mc-purple"><p class="metric-label">Total Investido</p><p class="metric-value">${fmt(total)}</p><p class="metric-sub">${raw.length} transações</p></div>`;
-  Object.entries(byWho).forEach(([name, val]) => {
-    const c = whoColors[name] || {cls:'mc-amber', hex: fallbackColors[fi++]||'#f0a033', tdcls:'pago-x'};
-    metricsHTML += `<div class="metric-card ${c.cls}"><p class="metric-label">${name}</p><p class="metric-value">${fmt(val)}</p><p class="metric-sub">${Math.round(val/total*100)}% do total</p></div>`;
+  let mh = `<div class="metric-card mc-purple"><p class="metric-label">Total Investido</p><p class="metric-value">${fmt(total)}</p><p class="metric-sub">${raw.length} transações</p></div>`;
+  Object.entries(byWho).forEach(([name,val])=>{
+    const c = whoColors[name]||{cls:'mc-amber',hex:fallback[fi++]||'#f0a033',tdcls:'pago-x'};
+    mh += `<div class="metric-card ${c.cls}"><p class="metric-label">${name}</p><p class="metric-value">${fmt(val)}</p><p class="metric-sub">${Math.round(val/total*100)}% do total</p></div>`;
   });
-  metricsHTML += `<div class="metric-card mc-amber"><p class="metric-label">Dev / Código</p><p class="metric-value">${fmt(devTotal)}</p><p class="metric-sub">${Math.round(devTotal/total*100)}% do total</p></div>`;
-  document.getElementById('metrics').innerHTML = metricsHTML;
+  mh += `<div class="metric-card mc-amber"><p class="metric-label">Dev / Código</p><p class="metric-value">${fmt(devTotal)}</p><p class="metric-sub">${Math.round(devTotal/total*100)}% do total</p></div>`;
+  document.getElementById('metrics').innerHTML = mh;
 
-  // Linha do tempo
-  const months = {};
-  raw.forEach(t => {
-    const parts = t.date.split('/');
-    const key = parts[1]+'/'+parts[2];
-    months[key] = (months[key]||0) + t.val;
+  // --- Linha do tempo ---
+  const months={};
+  raw.forEach(t=>{
+    const p=t.date.split('/');
+    const k=p[1]+'/'+p[2];
+    months[k]=(months[k]||0)+t.val;
   });
-  const monthKeys = Object.keys(months);
-  const monthAccum = []; let acc = 0;
-  monthKeys.forEach(k=>{ acc += months[k]; monthAccum.push(+acc.toFixed(2)); });
+  const mk=Object.keys(months);
+  const ma=[]; let acc=0;
+  mk.forEach(k=>{acc+=months[k];ma.push(+acc.toFixed(2));});
 
-  new Chart(document.getElementById('lineChart'), {
+  new Chart(document.getElementById('lineChart'),{
     type:'line',
-    data:{labels:monthKeys, datasets:[
-      {label:'Acumulado', data:monthAccum, borderColor:'#7850ff', backgroundColor:'rgba(120,80,255,0.08)', fill:true, tension:0.4, pointBackgroundColor:'#7850ff', pointRadius:5, pointHoverRadius:7},
-      {label:'Mensal', data:monthKeys.map(k=>months[k]), borderColor:'#00c8b4', backgroundColor:'rgba(0,200,180,0.05)', fill:false, tension:0.4, pointBackgroundColor:'#00c8b4', pointRadius:4, pointHoverRadius:6, borderDash:[4,4]}
+    data:{labels:mk,datasets:[
+      {label:'Acumulado',data:ma,borderColor:'#7850ff',backgroundColor:'rgba(120,80,255,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#7850ff',pointRadius:5,pointHoverRadius:7},
+      {label:'Mensal',data:mk.map(k=>months[k]),borderColor:'#00c8b4',backgroundColor:'rgba(0,200,180,0.05)',fill:false,tension:0.4,pointBackgroundColor:'#00c8b4',pointRadius:4,pointHoverRadius:6,borderDash:[4,4]}
     ]},
-    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{backgroundColor:'#13111f', borderColor:'#2a2545', borderWidth:1, titleColor:'#e8e4ff', bodyColor:'#7a7399', callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}}, scales:{x:{ticks:{color:'#7a7399',font:{size:11}}, grid:{color:'rgba(42,37,69,0.5)'}}, y:{ticks:{color:'#7a7399',font:{size:11}, callback:v=>'R$'+Math.round(v/1000)+'k'}, grid:{color:'rgba(42,37,69,0.5)'}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#7a7399',font:{size:11}},grid:{color:'rgba(42,37,69,0.5)'}},y:{ticks:{color:'#7a7399',font:{size:11},callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(42,37,69,0.5)'}}}}
   });
-  document.getElementById('line-legend').innerHTML = `
-    <span class="leg-item"><span class="leg-dot" style="background:#7850ff"></span>Acumulado</span>
-    <span class="leg-item"><span class="leg-dot" style="background:#00c8b4;opacity:.6"></span>Mensal</span>`;
+  document.getElementById('line-legend').innerHTML=`<span class="leg-item"><span class="leg-dot" style="background:#7850ff"></span>Acumulado</span><span class="leg-item"><span class="leg-dot" style="background:#00c8b4;opacity:.6"></span>Mensal</span>`;
 
-  // Rosca
-  const whoNames = Object.keys(byWho);
-  const whoVals  = whoNames.map(n=>byWho[n]);
-  const whoHexes = whoNames.map(n=>(whoColors[n]||{hex:'#f0a033'}).hex);
-  new Chart(document.getElementById('doughnutChart'), {
+  // --- Rosca ---
+  const wn=Object.keys(byWho);
+  const wv=wn.map(n=>byWho[n]);
+  const wh=wn.map(n=>(whoColors[n]||{hex:'#f0a033'}).hex);
+  new Chart(document.getElementById('doughnutChart'),{
     type:'doughnut',
-    data:{labels:whoNames, datasets:[{data:whoVals, backgroundColor:whoHexes, borderColor:'#0c0b14', borderWidth:3}]},
-    options:{responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{legend:{display:false}, tooltip:{backgroundColor:'#13111f', borderColor:'#2a2545', borderWidth:1, titleColor:'#e8e4ff', bodyColor:'#7a7399', callbacks:{label:ctx=>ctx.label+': '+fmt(ctx.parsed)}}}}
+    data:{labels:wn,datasets:[{data:wv,backgroundColor:wh,borderColor:'#0c0b14',borderWidth:3}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>ctx.label+': '+fmt(ctx.parsed)}}}}
   });
-  document.getElementById('donut-legend').innerHTML = whoNames.map(n=>`
-    <span class="leg-item"><span class="leg-dot" style="background:${(whoColors[n]||{hex:'#f0a033'}).hex}"></span>${n} ${Math.round(byWho[n]/total*100)}%</span>`).join('');
+  document.getElementById('donut-legend').innerHTML=wn.map(n=>`<span class="leg-item"><span class="leg-dot" style="background:${(whoColors[n]||{hex:'#f0a033'}).hex}"></span>${n} ${Math.round(byWho[n]/total*100)}%</span>`).join('');
 
-  // Barras categoria
-  const cats = {
-    'Desenvolvimento': raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0),
-    'VPS / Infra':     raw.filter(t=>/(vps|ssd|dedicada)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
-    'Mapas / Assets':  raw.filter(t=>/(guaxa|kino|noise|dump|animaç|skate|id visual)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
-    'Key / Licenças':  raw.filter(t=>/(key|key slot|fluxo base|axe bot|impulso)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
+  // --- Barras categoria ---
+  const cats={
+    'Desenvolvimento':raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0),
+    'VPS / Infra':raw.filter(t=>/(vps|ssd|dedicada)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
+    'Mapas / Assets':raw.filter(t=>/(guaxa|kino|noise|dump|animaç|skate|id visual)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
+    'Key / Licenças':raw.filter(t=>/(key|key slot|fluxo base|axe bot|impulso|taco)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
   };
-  const catColors = ['#7850ff','#00c8b4','#f0a033','#22d3f0'];
-  const catMax = Math.max(...Object.values(cats));
-  document.getElementById('cat-bars').innerHTML = Object.entries(cats).map(([k,v],i)=>`
+  const cc=['#7850ff','#00c8b4','#f0a033','#22d3f0'];
+  const cm=Math.max(...Object.values(cats));
+  document.getElementById('cat-bars').innerHTML=Object.entries(cats).map(([k,v],i)=>`
     <div class="bar-item">
       <div class="bar-label"><span class="bar-name">${k}</span><span class="bar-val">${fmt(v)}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/catMax*100)}%;background:${catColors[i]}"></div></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/cm*100)}%;background:${cc[i]}"></div></div>
     </div>`).join('');
 
-  // Pagamento
-  const pixTotal  = raw.filter(t=>t.pay==='PIX').reduce((a,t)=>a+t.val,0);
-  const cardTotal = raw.filter(t=>t.pay==='CARTÃO'||t.pay==='CARTAO').reduce((a,t)=>a+t.val,0);
-  new Chart(document.getElementById('payChart'), {
+  // --- Pagamento ---
+  const px=raw.filter(t=>t.pay==='PIX').reduce((a,t)=>a+t.val,0);
+  const cd=raw.filter(t=>t.pay==='CARTÃO'||t.pay==='CARTAO').reduce((a,t)=>a+t.val,0);
+  new Chart(document.getElementById('payChart'),{
     type:'bar',
-    data:{labels:['PIX','Cartão'], datasets:[{data:[pixTotal,cardTotal], backgroundColor:['#00c8b4','#7850ff'], borderRadius:6, borderSkipped:false}]},
-    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{backgroundColor:'#13111f', borderColor:'#2a2545', borderWidth:1, titleColor:'#e8e4ff', bodyColor:'#7a7399', callbacks:{label:ctx=>fmt(ctx.parsed.y)}}}, scales:{x:{ticks:{color:'#7a7399'}, grid:{display:false}}, y:{ticks:{color:'#7a7399', callback:v=>'R$'+Math.round(v/1000)+'k'}, grid:{color:'rgba(42,37,69,0.5)'}}}}
+    data:{labels:['PIX','Cartão'],datasets:[{data:[px,cd],backgroundColor:['#00c8b4','#7850ff'],borderRadius:6,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>fmt(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#7a7399'},grid:{display:false}},y:{ticks:{color:'#7a7399',callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(42,37,69,0.5)'}}}}
   });
 
-  // Tabela
-  const tbody = document.getElementById('tx-body');
-  [...raw].reverse().forEach(t => {
-    const obs = t.obs ? t.obs.split(',').map(o=>`<span class="obs-tag">${o.trim()}</span>`).join('') : '—';
-    const c = whoColors[t.who] || {tdcls:'pago-x'};
-    tbody.innerHTML += `<tr>
+  // --- Tabela ---
+  const tbody=document.getElementById('tx-body');
+  [...raw].reverse().forEach(t=>{
+    const obs=t.obs?t.obs.split(',').map(o=>`<span class="obs-tag">${o.trim()}</span>`).join(''):'—';
+    const c=whoColors[t.who]||{tdcls:'pago-x'};
+    const payKey=(t.pay==='PIX')?'pix':'card';
+    tbody.innerHTML+=`<tr>
       <td style="color:var(--av-muted);font-size:12px;white-space:nowrap">${t.date}</td>
       <td style="font-weight:500">${t.desc}</td>
       <td class="val-cell">${fmt(t.val)}</td>
-      <td><span class="badge badge-${(t.pay==='PIX')?'pix':'card'}">${t.pay}</span></td>
+      <td><span class="badge badge-${payKey}">${t.pay}</span></td>
       <td class="${c.tdcls}">${t.who}</td>
       <td style="max-width:220px">${obs}</td>
     </tr>`;
   });
 
-  // Footer com data de hoje
-  const hoje = new Date().toLocaleDateString('pt-BR');
-  document.getElementById('footer-date').textContent = `Aura Verse · atualizado em ${hoje}`;
+  document.getElementById('footer-date').textContent=`Aura Verse · atualizado em ${new Date().toLocaleDateString('pt-BR')}`;
 }
 
 loadData();

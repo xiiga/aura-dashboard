@@ -4,25 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aura Verse — Painel de Investimentos</title>
-<link rel="icon" type="image/x-icon" href="favicon.ico">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--av-purple:#7850ff;--av-teal:#00c8b4;--av-bg:#0c0b14;--av-card:#13111f;--av-card2:#1a1730;--av-border:#2a2545;--av-text:#e8e4ff;--av-muted:#7a7399}
+:root{
+  --av-purple:#7850ff;
+  --av-teal:#00c8b4;
+  --av-bg:#0c0b14;
+  --av-card:#13111f;
+  --av-card2:#1a1730;
+  --av-border:#2a2545;
+  --av-text:#e8e4ff;
+  --av-muted:#7a7399;
+}
 body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-serif;padding:32px;min-height:100vh}
-.dash{max-width:1100px;margin:0 auto}
+.dash{max-width:1140px;margin:0 auto}
 .title{font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:4px;color:var(--av-teal);text-transform:uppercase;margin-bottom:4px}
 .subtitle{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:700;color:var(--av-text);margin-bottom:8px}
 .divider{height:2px;background:linear-gradient(90deg,var(--av-purple),var(--av-teal),transparent);margin-bottom:28px;border-radius:2px}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
-.metric-card{background:var(--av-card);border:1px solid var(--av-border);border-radius:10px;padding:18px 20px;position:relative;overflow:hidden}
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.metric-card{background:var(--av-card);border:1px solid var(--av-border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden}
 .metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .mc-purple::before{background:var(--av-purple)}
 .mc-teal::before{background:var(--av-teal)}
 .mc-amber::before{background:#f0a033}
 .mc-pink::before{background:#e060c0}
-.metric-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--av-muted);margin-bottom:8px}
-.metric-value{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:700;color:var(--av-text)}
+.mc-cyan::before{background:#22d3f0}
+.metric-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--av-muted);margin-bottom:8px}
+.metric-value{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:var(--av-text)}
 .metric-sub{font-size:12px;color:var(--av-muted);margin-top:4px}
 .charts-row{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:20px}
 .card{background:var(--av-card);border:1px solid var(--av-border);border-radius:10px;padding:20px}
@@ -40,6 +49,7 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
 .badge-card{background:#1f1a2e;color:#9c6ff5}
 .pago-x{color:#00c8b4;font-weight:600}
 .pago-m{color:#e060c0;font-weight:600}
+.pago-c{color:#22d3f0;font-weight:600}
 .val-cell{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--av-teal)}
 .bar-row{display:flex;flex-direction:column;gap:12px}
 .bar-item{display:flex;flex-direction:column;gap:5px}
@@ -51,14 +61,6 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
 .bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
 .obs-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;background:#1a1a2e;color:#7a7399;margin:2px 2px 0 0;border:1px solid var(--av-border)}
 .footer{text-align:center;font-size:11px;color:var(--av-muted);margin-top:32px;letter-spacing:2px;text-transform:uppercase}
-.loader{display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;gap:16px}
-.spinner{width:40px;height:40px;border:3px solid var(--av-border);border-top-color:var(--av-purple);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loader-text{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--av-muted)}
-.error-box{background:var(--av-card);border:1px solid #ff405040;border-radius:10px;padding:24px;text-align:center;color:#ff8080;font-size:14px}
-.refresh-btn{display:inline-flex;align-items:center;gap:8px;margin-top:8px;padding:6px 16px;border-radius:6px;border:1px solid var(--av-border);background:var(--av-card2);color:var(--av-teal);font-family:'Rajdhani',sans-serif;font-size:13px;cursor:pointer;letter-spacing:1px;transition:border-color .2s}
-.refresh-btn:hover{border-color:var(--av-teal)}
-.last-update{font-size:11px;color:var(--av-muted);margin-top:4px}
 </style>
 </head>
 <body>
@@ -66,173 +68,173 @@ body{background:var(--av-bg);color:var(--av-text);font-family:'Rajdhani',sans-se
   <p class="title">Aura Verse — FiveM Server</p>
   <p class="subtitle">Painel de Investimentos</p>
   <div class="divider"></div>
-  <div id="root"><div class="loader"><div class="spinner"></div><p class="loader-text">Carregando planilha...</p></div></div>
+
+  <div class="metrics" id="metrics"></div>
+
+  <div class="charts-row">
+    <div class="card">
+      <p class="card-title">Aportes ao longo do tempo</p>
+      <div style="position:relative;height:220px"><canvas id="lineChart"></canvas></div>
+      <div class="legend" id="line-legend"></div>
+    </div>
+    <div class="card">
+      <p class="card-title">Distribuição por investidor</p>
+      <div style="position:relative;height:220px"><canvas id="doughnutChart"></canvas></div>
+      <div class="legend" id="donut-legend"></div>
+    </div>
+  </div>
+
+  <div class="bottom-row">
+    <div class="card">
+      <p class="card-title">Investimento por categoria</p>
+      <div class="bar-row" id="cat-bars"></div>
+    </div>
+    <div class="card">
+      <p class="card-title">Forma de pagamento</p>
+      <div style="position:relative;height:200px"><canvas id="payChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="table-section">
+    <p class="card-title">Histórico de transações</p>
+    <table class="av-table">
+      <thead><tr>
+        <th>Data</th><th>Descrição</th><th>Valor</th><th>Forma</th><th>Pago por</th><th>Observações</th>
+      </tr></thead>
+      <tbody id="tx-body"></tbody>
+    </table>
+  </div>
+
+  <p class="footer">Aura Verse &nbsp;·&nbsp; atualizado em 12/06/2026</p>
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const SHEET_ID='14qY6cIm_ddfcdXUJ7UjK73V12NDR5LkdtqZDVyKHlZ4';
-const SHEET_NAME='INVESTIMENTO';
-let charts=[];
-
-async function loadData(){
-  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&headers=2`;
-  const res=await fetch(url);
-  if(!res.ok) throw new Error('Erro ao buscar planilha');
-  const text=await res.text();
-  const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-  const rows=[];
-  for(const r of json.table.rows){
-    const c=r.c;
-    if(!c||!c[0]) continue;
-    const date=c[0]?.v ? formatDate(c[0].v) : null;
-    const desc=String(c[1]?.v||'').trim();
-    const rawVal=c[2]?.v;
-    const val=parseFloat(String(rawVal||'0').replace(',','.'));
-    const pay=String(c[3]?.v||'').toUpperCase().trim();
-    const who=String(c[4]?.v||'').trim();
-    // c[5] = TOTAL (ignorado), c[6] = OBS
-    const obsRaw=c[6]?.v;
-    const obs=obsRaw!=null ? String(obsRaw).trim() : '';
-    if(!date||!desc||isNaN(val)||val<=0) continue;
-    rows.push({date,desc,val,pay,who,obs});
-  }
-  return rows;
-}
-
-function formatDate(v){
-  if(typeof v==='string'&&v.startsWith('Date(')){
-    const p=v.replace('Date(','').replace(')','').split(',').map(Number);
-    const d=new Date(p[0],p[1],p[2]);
-    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-  }
-  return String(v);
-}
+const raw=[
+  {date:'05/12/2025',desc:'Base fluxo',val:300,pay:'PIX',who:'Moreno',obs:''},
+  {date:'05/12/2025',desc:'Key Slot',val:272,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'05/12/2025',desc:'VPS',val:120,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'15/12/2025',desc:'White DEV',val:500,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'23/12/2025',desc:'White DEV',val:500,pay:'PIX',who:'Moreno',obs:''},
+  {date:'07/01/2026',desc:'VPS',val:153,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'15/01/2026',desc:'Kino',val:200,pay:'PIX',who:'Moreno',obs:''},
+  {date:'20/01/2026',desc:'White DEV',val:500,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'20/01/2026',desc:'Pack animações',val:100,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'24/01/2026',desc:'50GB VPS',val:20,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'25/01/2026',desc:'White DEV',val:500,pay:'PIX',who:'Moreno',obs:''},
+  {date:'06/02/2026',desc:'VPS',val:81,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'17/02/2026',desc:'Upgrade VPS',val:134.1,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'20/04/2026',desc:'James DEV',val:410,pay:'PIX',who:'Xiiga',obs:'royale, skins, spotify, HUD'},
+  {date:'23/04/2026',desc:'James DEV',val:400,pay:'PIX',who:'Moreno',obs:'emote, craft, roupas, carros logo'},
+  {date:'23/04/2026',desc:'VPS+Key+SSD',val:361,pay:'CARTÃO',who:'Xiiga',obs:''},
+  {date:'28/04/2026',desc:'James DEV',val:250,pay:'PIX',who:'Xiiga',obs:'farm afk, painel org, esc menu, voz, fxf, f1, telao, empregos'},
+  {date:'29/04/2026',desc:'James DEV',val:100,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'30/05/2026',desc:'James DEV',val:50,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'08/05/2026',desc:'James DEV',val:135,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'09/05/2026',desc:'James DEV',val:183,pay:'PIX',who:'Xiiga',obs:'KEY + Concessionária/Mecânica'},
+  {date:'13/05/2026',desc:'James DEV',val:540,pay:'PIX',who:'Moreno',obs:''},
+  {date:'14/05/2026',desc:'James DEV',val:200,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'15/05/2026',desc:'James DEV',val:200,pay:'PIX',who:'Xiiga',obs:''},
+  {date:'20/05/2026',desc:'James DEV',val:200,pay:'PIX',who:'Xiiga',obs:'Painel supremo + pier sul'},
+  {date:'23/05/2026',desc:'VPS Dedicada',val:900,pay:'CARTÃO',who:'Xiiga',obs:'VPS Wyze'},
+  {date:'23/05/2026',desc:'James DEV',val:80,pay:'PIX',who:'Moreno',obs:'posições táticas'},
+  {date:'25/05/2026',desc:'Acesso DC Noise',val:69.7,pay:'PIX',who:'Xiiga',obs:'Mapas, peds DC Kino...'},
+  {date:'26/05/2026',desc:'Dump lixo',val:45,pay:'PIX',who:'Xiiga',obs:'MIZZZZZZZZZZEEEEEEEEERAAA'},
+  {date:'28/05/2026',desc:'Guaxa Maps',val:180,pay:'PIX',who:'Xiiga',obs:'pack favelas soltas'},
+  {date:'28/05/2026',desc:'Guaxa Maps',val:200,pay:'PIX',who:'Xiiga',obs:'telão praça, + logo girando, pier norte ajustes + logo, + rua'},
+  {date:'01/06/2026',desc:'Guaxa Maps',val:250,pay:'PIX',who:'Xiiga',obs:'dp + bomb'},
+  {date:'06/06/2026',desc:'Fluxo BASE',val:100,pay:'PIX',who:'Xiiga',obs:'trocar discord da base'},
+  {date:'06/06/2026',desc:'Axe BOT',val:220,pay:'PIX',who:'Chucksz',obs:'AXE BOT DC'},
+  {date:'06/06/2026',desc:'Impulsos',val:45.5,pay:'PIX',who:'Chucksz',obs:'Impulsos pro discord'},
+  {date:'10/06/2026',desc:'KEY',val:250,pay:'PIX',who:'Chucksz',obs:'key fivem 2048'},
+  {date:'11/06/2026',desc:'Taco',val:70,pay:'PIX',who:'Chucksz',obs:'DUMP'},
+  {date:'12/06/2026',desc:'ID Visual',val:440,pay:'PIX',who:'Chucksz',obs:'FEZ A MENINA CHORAR'},
+  {date:'12/06/2026',desc:'Script Skate',val:90.93,pay:'PIX',who:'Chucksz',obs:'mecanica de skateboard'},
+];
 
 const fmt=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const total=raw.reduce((a,t)=>a+t.val,0);
+const xiiga=raw.filter(t=>t.who==='Xiiga').reduce((a,t)=>a+t.val,0);
+const moreno=raw.filter(t=>t.who==='Moreno').reduce((a,t)=>a+t.val,0);
+const chucksz=raw.filter(t=>t.who==='Chucksz').reduce((a,t)=>a+t.val,0);
+const devTotal=raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0);
 
-function render(raw){
-  charts.forEach(c=>c.destroy()); charts=[];
-  const total=raw.reduce((a,t)=>a+t.val,0);
-  const xiiga=raw.filter(t=>t.who==='Xiiga').reduce((a,t)=>a+t.val,0);
-  const moreno=raw.filter(t=>t.who==='Moreno').reduce((a,t)=>a+t.val,0);
-  const devTotal=raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0);
-  const now=new Date().toLocaleDateString('pt-BR');
+document.getElementById('metrics').innerHTML=`
+<div class="metric-card mc-purple"><p class="metric-label">Total Investido</p><p class="metric-value">${fmt(total)}</p><p class="metric-sub">${raw.length} transações</p></div>
+<div class="metric-card mc-teal"><p class="metric-label">Xiiga</p><p class="metric-value">${fmt(xiiga)}</p><p class="metric-sub">${Math.round(xiiga/total*100)}% do total</p></div>
+<div class="metric-card mc-pink"><p class="metric-label">Moreno</p><p class="metric-value">${fmt(moreno)}</p><p class="metric-sub">${Math.round(moreno/total*100)}% do total</p></div>
+<div class="metric-card mc-cyan"><p class="metric-label">Chucksz</p><p class="metric-value">${fmt(chucksz)}</p><p class="metric-sub">${Math.round(chucksz/total*100)}% do total</p></div>
+<div class="metric-card mc-amber"><p class="metric-label">Dev / Código</p><p class="metric-value">${fmt(devTotal)}</p><p class="metric-sub">${Math.round(devTotal/total*100)}% do total</p></div>
+`;
 
-  document.getElementById('root').innerHTML=`
-    <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:20px">
-      <span class="last-update">Atualizado em ${now}</span>
-      <button class="refresh-btn" onclick="init()">↻ Atualizar</button>
-    </div>
-    <div class="metrics" id="metrics"></div>
-    <div class="charts-row">
-      <div class="card"><p class="card-title">Aportes ao longo do tempo</p><div style="position:relative;height:220px"><canvas id="lineChart"></canvas></div><div class="legend" id="line-legend"></div></div>
-      <div class="card"><p class="card-title">Distribuição por pagador</p><div style="position:relative;height:220px"><canvas id="doughnutChart"></canvas></div><div class="legend" id="donut-legend"></div></div>
-    </div>
-    <div class="bottom-row">
-      <div class="card"><p class="card-title">Investimento por categoria</p><div class="bar-row" id="cat-bars"></div></div>
-      <div class="card"><p class="card-title">Forma de pagamento</p><div style="position:relative;height:200px"><canvas id="payChart"></canvas></div></div>
-    </div>
-    <div class="table-section">
-      <p class="card-title">Histórico de transações</p>
-      <table class="av-table">
-        <thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Forma</th><th>Pago por</th><th>Observações</th></tr></thead>
-        <tbody id="tx-body"></tbody>
-      </table>
-    </div>
-    <p class="footer">Aura Verse &nbsp;·&nbsp; ${raw.length} transações</p>
-  `;
+// Linha do tempo — agrupa por mês/ano
+const months={};
+raw.forEach(t=>{
+  const parts=t.date.split('/');
+  const key=parts[1]+'/'+parts[2];
+  months[key]=(months[key]||0)+t.val;
+});
+const monthKeys=Object.keys(months);
+const monthAccum=[];let acc=0;
+monthKeys.forEach(k=>{acc+=months[k];monthAccum.push(+acc.toFixed(2));});
 
-  document.getElementById('metrics').innerHTML=`
-    <div class="metric-card mc-purple"><p class="metric-label">Total Investido</p><p class="metric-value">${fmt(total)}</p><p class="metric-sub">${raw.length} transações</p></div>
-    <div class="metric-card mc-teal"><p class="metric-label">Xiiga</p><p class="metric-value">${fmt(xiiga)}</p><p class="metric-sub">${Math.round(xiiga/total*100)}% do total</p></div>
-    <div class="metric-card mc-pink"><p class="metric-label">Moreno</p><p class="metric-value">${fmt(moreno)}</p><p class="metric-sub">${Math.round(moreno/total*100)}% do total</p></div>
-    <div class="metric-card mc-amber"><p class="metric-label">Dev / Código</p><p class="metric-value">${fmt(devTotal)}</p><p class="metric-sub">${Math.round(devTotal/total*100)}% do total</p></div>
-  `;
+new Chart(document.getElementById('lineChart'),{
+  type:'line',
+  data:{labels:monthKeys,datasets:[
+    {label:'Acumulado',data:monthAccum,borderColor:'#7850ff',backgroundColor:'rgba(120,80,255,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#7850ff',pointRadius:5,pointHoverRadius:7},
+    {label:'Mensal',data:monthKeys.map(k=>months[k]),borderColor:'#00c8b4',backgroundColor:'rgba(0,200,180,0.05)',fill:false,tension:0.4,pointBackgroundColor:'#00c8b4',pointRadius:4,pointHoverRadius:6,borderDash:[4,4]}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#7a7399',font:{size:11}},grid:{color:'rgba(42,37,69,0.5)'}},y:{ticks:{color:'#7a7399',font:{size:11},callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(42,37,69,0.5)'}}}}
+});
+document.getElementById('line-legend').innerHTML=`
+<span class="leg-item"><span class="leg-dot" style="background:#7850ff"></span>Acumulado</span>
+<span class="leg-item"><span class="leg-dot" style="background:#00c8b4;opacity:.6"></span>Mensal</span>`;
 
-  const months={};
-  raw.forEach(t=>{
-    const p=t.date.split('/');
-    const k=p[1]+'/'+p[2];
-    months[k]=(months[k]||0)+t.val;
-  });
-  const monthKeys=Object.keys(months).sort((a,b)=>{
-    const [ma,ya]=a.split('/').map(Number);
-    const [mb,yb]=b.split('/').map(Number);
-    return ya!==yb?ya-yb:ma-mb;
-  });
-  let acc=0;
-  const monthAccum=monthKeys.map(k=>{acc+=months[k];return +acc.toFixed(2);});
+new Chart(document.getElementById('doughnutChart'),{
+  type:'doughnut',
+  data:{labels:['Xiiga','Moreno','Chucksz'],datasets:[{data:[xiiga,moreno,chucksz],backgroundColor:['#7850ff','#e060c0','#22d3f0'],hoverBackgroundColor:['#9070ff','#e880d0','#55e0f5'],borderColor:'#0c0b14',borderWidth:3}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>ctx.label+': '+fmt(ctx.parsed)}}}}
+});
+document.getElementById('donut-legend').innerHTML=`
+<span class="leg-item"><span class="leg-dot" style="background:#7850ff"></span>Xiiga ${Math.round(xiiga/total*100)}%</span>
+<span class="leg-item"><span class="leg-dot" style="background:#e060c0"></span>Moreno ${Math.round(moreno/total*100)}%</span>
+<span class="leg-item"><span class="leg-dot" style="background:#22d3f0"></span>Chucksz ${Math.round(chucksz/total*100)}%</span>`;
 
-  charts.push(new Chart(document.getElementById('lineChart'),{
-    type:'line',
-    data:{labels:monthKeys,datasets:[
-      {label:'Acumulado',data:monthAccum,borderColor:'#7850ff',backgroundColor:'rgba(120,80,255,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#7850ff',pointRadius:5,pointHoverRadius:7},
-      {label:'Mensal',data:monthKeys.map(k=>months[k]),borderColor:'#00c8b4',backgroundColor:'rgba(0,200,180,0.05)',fill:false,tension:0.4,pointBackgroundColor:'#00c8b4',pointRadius:4,pointHoverRadius:6,borderDash:[4,4]}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#7a7399',font:{size:11}},grid:{color:'rgba(42,37,69,0.5)'}},y:{ticks:{color:'#7a7399',font:{size:11},callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(42,37,69,0.5)'}}}}
-  }));
-  document.getElementById('line-legend').innerHTML=`<span class="leg-item"><span class="leg-dot" style="background:#7850ff"></span>Acumulado</span><span class="leg-item"><span class="leg-dot" style="background:#00c8b4;opacity:.6"></span>Mensal</span>`;
+const cats={
+  'Desenvolvimento':raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0),
+  'VPS / Infra':raw.filter(t=>/(vps|ssd|dedicada)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
+  'Mapas / Assets':raw.filter(t=>/(guaxa|kino|noise|dump|animaç|skate|id visual)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
+  'Key / Licenças':raw.filter(t=>/(key|key slot|fluxo base|axe bot|impulso)/i.test(t.desc)).reduce((a,t)=>a+t.val,0),
+};
+const catColors=['#7850ff','#00c8b4','#f0a033','#22d3f0'];
+const catMax=Math.max(...Object.values(cats));
+document.getElementById('cat-bars').innerHTML=Object.entries(cats).map(([k,v],i)=>`
+<div class="bar-item">
+  <div class="bar-label"><span class="bar-name">${k}</span><span class="bar-val">${fmt(v)}</span></div>
+  <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/catMax*100)}%;background:${catColors[i]}"></div></div>
+</div>`).join('');
 
-  charts.push(new Chart(document.getElementById('doughnutChart'),{
-    type:'doughnut',
-    data:{labels:['Xiiga','Moreno'],datasets:[{data:[xiiga,moreno],backgroundColor:['#7850ff','#e060c0'],hoverBackgroundColor:['#9070ff','#e880d0'],borderColor:'#0c0b14',borderWidth:3}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>ctx.label+': '+fmt(ctx.parsed)}}}}
-  }));
-  document.getElementById('donut-legend').innerHTML=`<span class="leg-item"><span class="leg-dot" style="background:#7850ff"></span>Xiiga ${Math.round(xiiga/total*100)}%</span><span class="leg-item"><span class="leg-dot" style="background:#e060c0"></span>Moreno ${Math.round(moreno/total*100)}%</span>`;
+const pixTotal=raw.filter(t=>t.pay==='PIX').reduce((a,t)=>a+t.val,0);
+const cardTotal=raw.filter(t=>t.pay==='CARTÃO').reduce((a,t)=>a+t.val,0);
+new Chart(document.getElementById('payChart'),{
+  type:'bar',
+  data:{labels:['PIX','Cartão'],datasets:[{data:[pixTotal,cardTotal],backgroundColor:['#00c8b4','#7850ff'],borderRadius:6,borderSkipped:false}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>fmt(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#7a7399'},grid:{display:false}},y:{ticks:{color:'#7a7399',callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(42,37,69,0.5)'}}}}
+});
 
-  const cats={
-    'Desenvolvimento':raw.filter(t=>t.desc.toLowerCase().includes('dev')).reduce((a,t)=>a+t.val,0),
-    'VPS / Infra':raw.filter(t=>t.desc.toLowerCase().includes('vps')||t.desc.toLowerCase().includes('ssd')).reduce((a,t)=>a+t.val,0),
-    'Assets / Plugins':raw.filter(t=>!t.desc.toLowerCase().includes('dev')&&!t.desc.toLowerCase().includes('vps')&&!t.desc.toLowerCase().includes('ssd')).reduce((a,t)=>a+t.val,0),
-  };
-  const catColors=['#7850ff','#00c8b4','#f0a033'];
-  const catMax=Math.max(...Object.values(cats));
-  document.getElementById('cat-bars').innerHTML=Object.entries(cats).map(([k,v],i)=>`
-    <div class="bar-item">
-      <div class="bar-label"><span class="bar-name">${k}</span><span class="bar-val">${fmt(v)}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/catMax*100)}%;background:${catColors[i]}"></div></div>
-    </div>`).join('');
-
-  const pixTotal=raw.filter(t=>t.pay==='PIX').reduce((a,t)=>a+t.val,0);
-  const cardTotal=raw.filter(t=>t.pay==='CARTÃO'||t.pay==='CARTAO').reduce((a,t)=>a+t.val,0);
-  charts.push(new Chart(document.getElementById('payChart'),{
-    type:'bar',
-    data:{labels:['PIX','Cartão'],datasets:[{data:[pixTotal,cardTotal],backgroundColor:['#00c8b4','#7850ff'],borderRadius:6,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#13111f',borderColor:'#2a2545',borderWidth:1,titleColor:'#e8e4ff',bodyColor:'#7a7399',callbacks:{label:ctx=>fmt(ctx.parsed.y)}}},scales:{x:{ticks:{color:'#7a7399'},grid:{display:false}},y:{ticks:{color:'#7a7399',callback:v=>'R$'+Math.round(v/1000)+'k'},grid:{color:'rgba(42,37,69,0.5)'}}}}
-  }));
-
-  const tbody=document.getElementById('tx-body');
-  [...raw].reverse().forEach(t=>{
-    const obsStr=t.obs ? String(t.obs) : '';
-    const obsHtml=obsStr ? obsStr.split(',').map(o=>`<span class="obs-tag">${o.trim()}</span>`).join('') : '—';
-    tbody.innerHTML+=`<tr>
-      <td style="color:var(--av-muted);font-size:12px;white-space:nowrap">${t.date}</td>
-      <td style="font-weight:500">${t.desc}</td>
-      <td class="val-cell">${fmt(t.val)}</td>
-      <td><span class="badge badge-${t.pay==='PIX'?'pix':'card'}">${t.pay}</span></td>
-      <td class="${t.who==='Xiiga'?'pago-x':'pago-m'}">${t.who}</td>
-      <td style="max-width:220px">${obsHtml}</td>
-    </tr>`;
-  });
-}
-
-async function init(){
-  document.getElementById('root').innerHTML='<div class="loader"><div class="spinner"></div><p class="loader-text">Carregando planilha...</p></div>';
-  try{
-    const data=await loadData();
-    if(!data.length) throw new Error('Nenhuma linha encontrada');
-    render(data);
-  }catch(e){
-    document.getElementById('root').innerHTML=`
-      <div class="error-box">
-        <p>⚠️ Não foi possível carregar a planilha</p>
-        <p style="font-size:12px;margin-top:6px;color:#7a7399">${e.message}</p>
-        <button class="refresh-btn" onclick="init()">↻ Tentar novamente</button>
-      </div>`;
-  }
-}
-
-init();
+const colorMap={Xiiga:'pago-x',Moreno:'pago-m',Chucksz:'pago-c'};
+const tbody=document.getElementById('tx-body');
+[...raw].reverse().forEach(t=>{
+  const obs=t.obs?t.obs.split(',').map(o=>`<span class="obs-tag">${o.trim()}</span>`).join(''):'—';
+  tbody.innerHTML+=`<tr>
+    <td style="color:var(--av-muted);font-size:12px;white-space:nowrap">${t.date}</td>
+    <td style="font-weight:500">${t.desc}</td>
+    <td class="val-cell">${fmt(t.val)}</td>
+    <td><span class="badge badge-${t.pay==='PIX'?'pix':'card'}">${t.pay}</span></td>
+    <td class="${colorMap[t.who]||'pago-x'}">${t.who}</td>
+    <td style="max-width:220px">${obs}</td>
+  </tr>`;
+});
 </script>
 </body>
 </html>
